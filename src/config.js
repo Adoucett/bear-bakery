@@ -9,6 +9,10 @@ export const CONFIG = {
   CUSTOMER_SPEED: 58,
   INTERACT_RANGE: 72,
   CLICK_ARRIVE_DIST: 10,
+  /** Mouse/touch follow ignores the pointer until it leaves this radius (fine clicks). */
+  FOLLOW_DEAD_ZONE: 58,
+  /** Max finger travel (logical px) that still counts as a tap / action, not a drag. */
+  TAP_SLOP: 16,
   /** Soft day length in seconds (~5 minutes). No forced rush. */
   DAY_LENGTH: 300,
   /** Base wait patience before leaving (~3.5 minutes). */

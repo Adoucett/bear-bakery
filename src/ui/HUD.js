@@ -496,7 +496,7 @@ export class HUD {
 
     ctx.fillStyle = '#8a7360';
     ctx.font = '13px Fredoka, sans-serif';
-    ctx.fillText('Pin recipes in the Study Book (B) · P / Esc closes menu', 480, 560);
+    ctx.fillText('Tap / E use · Drag to move · Pin recipes in Study Book (B) · P closes menu', 480, 560);
   }
 
   _paintButton(ctx, x, y, w, h, label, color) {

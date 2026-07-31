@@ -48,12 +48,12 @@ export const PATISSERIE = {
     { id: 'serve', label: 'Pickup Window', kind: 'serve', action: 'serve', x: 530, y: 284, w: 90, h: 46 },
     { id: 'openSign', label: 'Open / Close Sign', kind: 'openSign', action: 'open_restaurant', x: 28, y: 138, w: 40, h: 52 },
 
-    // Big oven under the pastry case — short carry to display
-    { id: 'oven', label: 'Commercial Oven', kind: 'oven', action: 'bake', x: 250, y: 360, w: 130, h: 95 },
-    { id: 'dishwasher', label: 'Dishwasher & Prep Sink', kind: 'dishwasher', action: 'wash_dishes', x: 500, y: 380, w: 100, h: 58 },
-    { id: 'pantry', label: 'Pantry Shelf', kind: 'pantry', action: 'restock', x: 580, y: 500, w: 46, h: 80 },
+    // Big oven(s) under the pastry case — short carry up to the display
+    { id: 'oven', label: 'Commercial Oven', kind: 'oven', action: 'bake', x: 90, y: 360, w: 140, h: 90 },
+    { id: 'dishwasher', label: 'Dishwasher & Prep Sink', kind: 'dishwasher', action: 'wash_dishes', x: 480, y: 380, w: 100, h: 58 },
+    { id: 'pantry', label: 'Pantry Shelf', kind: 'pantry', action: 'restock', x: 640, y: 500, w: 46, h: 80 },
 
-    // Mixing bowls on prep island
+    // Mixing bowls on prep island (south of ovens)
     { id: 'bowl1', label: 'Mixing Bowl A', kind: 'mixingBowl', action: 'mix_bowl', bowlId: 'bowl1', x: 200, y: 480, w: 58, h: 46 },
     { id: 'bowl2', label: 'Mixing Bowl B', kind: 'mixingBowl', action: 'mix_bowl', bowlId: 'bowl2', x: 280, y: 480, w: 58, h: 46 },
     { id: 'bowl3', label: 'Mixing Bowl C', kind: 'mixingBowl', action: 'mix_bowl', bowlId: 'bowl3', x: 360, y: 480, w: 58, h: 46 },
@@ -62,18 +62,18 @@ export const PATISSERIE = {
     { id: 'flour', label: 'Flour Bowl', kind: 'ingredientBowl', ingredientId: 'flour', action: 'add_ingredient', x: 40, y: 370, w: 44, h: 40 },
     { id: 'eggs', label: 'Egg Basket', kind: 'ingredientBowl', ingredientId: 'eggs', action: 'add_ingredient', x: 40, y: 450, w: 44, h: 40 },
     { id: 'milk', label: 'Milk Chiller', kind: 'ingredientBowl', ingredientId: 'milk', action: 'add_ingredient', x: 40, y: 530, w: 44, h: 40 },
-    { id: 'butter', label: 'Butter Dish', kind: 'ingredientBowl', ingredientId: 'butter', action: 'add_ingredient', x: 120, y: 370, w: 44, h: 40 },
-    { id: 'sugar', label: 'Sugar Jar', kind: 'ingredientBowl', ingredientId: 'sugar', action: 'add_ingredient', x: 120, y: 450, w: 44, h: 40 },
-    { id: 'chips', label: 'Chocolate Chips', kind: 'ingredientBowl', ingredientId: 'chocolate_chips', action: 'add_ingredient', x: 120, y: 530, w: 44, h: 40 },
-    { id: 'cocoa', label: 'Cocoa Tin', kind: 'ingredientBowl', ingredientId: 'cocoa', action: 'add_ingredient', x: 200, y: 560, w: 44, h: 40 },
-    { id: 'honey', label: 'Honey Jar', kind: 'ingredientBowl', ingredientId: 'honey', action: 'add_ingredient', x: 280, y: 560, w: 44, h: 40 },
-    { id: 'berries', label: 'Berry Bowl', kind: 'ingredientBowl', ingredientId: 'berries', action: 'add_ingredient', x: 360, y: 560, w: 44, h: 40 },
-    { id: 'fruit', label: 'Fruit Crate', kind: 'ingredientBowl', ingredientId: 'fruit', action: 'add_ingredient', x: 440, y: 560, w: 44, h: 40 },
-    { id: 'apple', label: 'Apple Bin', kind: 'ingredientBowl', ingredientId: 'apple', action: 'add_ingredient', x: 520, y: 560, w: 44, h: 40 },
-    { id: 'carrot', label: 'Carrot Crate', kind: 'ingredientBowl', ingredientId: 'carrot', action: 'add_ingredient', x: 440, y: 480, w: 44, h: 40 },
-    { id: 'peanut', label: 'Peanut Jar', kind: 'ingredientBowl', ingredientId: 'peanut', action: 'add_ingredient', x: 520, y: 480, w: 44, h: 40 },
-    { id: 'mint', label: 'Mint Planter', kind: 'ingredientBowl', ingredientId: 'mint', action: 'add_ingredient', x: 200, y: 370, w: 44, h: 40 },
-    { id: 'cheese', label: 'Cheese Plate', kind: 'ingredientBowl', ingredientId: 'cheese', action: 'add_ingredient', x: 610, y: 370, w: 44, h: 40 },
+    { id: 'butter', label: 'Butter Dish', kind: 'ingredientBowl', ingredientId: 'butter', action: 'add_ingredient', x: 120, y: 450, w: 44, h: 40 },
+    { id: 'sugar', label: 'Sugar Jar', kind: 'ingredientBowl', ingredientId: 'sugar', action: 'add_ingredient', x: 120, y: 530, w: 44, h: 40 },
+    { id: 'chips', label: 'Chocolate Chips', kind: 'ingredientBowl', ingredientId: 'chocolate_chips', action: 'add_ingredient', x: 200, y: 560, w: 44, h: 40 },
+    { id: 'cocoa', label: 'Cocoa Tin', kind: 'ingredientBowl', ingredientId: 'cocoa', action: 'add_ingredient', x: 280, y: 560, w: 44, h: 40 },
+    { id: 'honey', label: 'Honey Jar', kind: 'ingredientBowl', ingredientId: 'honey', action: 'add_ingredient', x: 360, y: 560, w: 44, h: 40 },
+    { id: 'berries', label: 'Berry Bowl', kind: 'ingredientBowl', ingredientId: 'berries', action: 'add_ingredient', x: 440, y: 560, w: 44, h: 40 },
+    { id: 'fruit', label: 'Fruit Crate', kind: 'ingredientBowl', ingredientId: 'fruit', action: 'add_ingredient', x: 520, y: 560, w: 44, h: 40 },
+    { id: 'apple', label: 'Apple Bin', kind: 'ingredientBowl', ingredientId: 'apple', action: 'add_ingredient', x: 440, y: 480, w: 44, h: 40 },
+    { id: 'carrot', label: 'Carrot Crate', kind: 'ingredientBowl', ingredientId: 'carrot', action: 'add_ingredient', x: 520, y: 480, w: 44, h: 40 },
+    { id: 'peanut', label: 'Peanut Jar', kind: 'ingredientBowl', ingredientId: 'peanut', action: 'add_ingredient', x: 620, y: 430, w: 44, h: 40 },
+    { id: 'mint', label: 'Mint Planter', kind: 'ingredientBowl', ingredientId: 'mint', action: 'add_ingredient', x: 620, y: 350, w: 44, h: 40 },
+    { id: 'cheese', label: 'Cheese Plate', kind: 'ingredientBowl', ingredientId: 'cheese', action: 'add_ingredient', x: 400, y: 400, w: 44, h: 40 },
 
     // —— Office ——
     { id: 'shop', label: 'Office Shop Desk', kind: 'shop', action: 'open_shop', x: 705, y: 290, w: 120, h: 58 },
@@ -102,7 +102,7 @@ export const PATISSERIE = {
     posQueue: { x: 300, y: 245 },
     diningSeat: { x: 160, y: 130 },
     exit: { x: 50, y: 175 },
-    playerStart: { x: 340, y: 480 },
+    playerStart: { x: 300, y: 490 },
     pickup: { x: 575, y: 250 },
     restroomEntry: { x: 690, y: 195 },
     restroomAisle: { x: 790, y: 195 },
@@ -119,10 +119,10 @@ export const SECOND_OVEN_FIXTURE = {
   label: 'Second Oven',
   kind: 'oven',
   action: 'bake',
-  x: 390,
+  x: 250,
   y: 360,
-  w: 100,
-  h: 70,
+  w: 110,
+  h: 90,
 };
 
 /** Extra lounge couch — appended when owned. */

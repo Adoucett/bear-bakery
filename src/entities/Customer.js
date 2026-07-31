@@ -7,6 +7,7 @@ import {
   voicedChatLine,
   voicedGreetLine,
 } from '../data/dialogue.js';
+import { manifestVoiceText } from '../data/voiceLines.js';
 import { Character, moveWithCollision } from './Character.js';
 import { facingFromMove } from './Facing.js';
 import { PATISSERIE } from '../world/RestaurantLayout.js';
@@ -56,13 +57,16 @@ export class Customer extends Character {
     this.happiness = 1;
     /** @type {{ id: string, tableId: string, label: string, x: number, y: number }|null} */
     this.seat = null;
-    // Voiced lines must match the recorded MP3s (fixed indices / order puns).
-    this.orderLine = fillDialogueSpoken(
-      orderLineFor(species.id, this.order),
-      { name, order: this.order },
-    );
-    this.greetLine = voicedGreetLine(species.id, { name, order: this.order });
-    this.chatLine = voicedChatLine(species.id, { name, order: this.order });
+    // Prefer exact MP3 transcripts so subtitles always match the voice.
+    this.orderLine =
+      manifestVoiceText(species.id, 'order', this.order?.id) ||
+      fillDialogueSpoken(orderLineFor(species.id, this.order), { name, order: this.order });
+    this.greetLine =
+      manifestVoiceText(species.id, 'greet') ||
+      voicedGreetLine(species.id, { name, order: this.order });
+    this.chatLine =
+      manifestVoiceText(species.id, 'chat') ||
+      voicedChatLine(species.id, { name, order: this.order });
     this.restroomRoute = [];
     this.restroomRouteIndex = 0;
     this.restroomPause = 0;

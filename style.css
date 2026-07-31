@@ -20,6 +20,10 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
   background:
     radial-gradient(ellipse at 15% 0%, #ffb347 0%, transparent 42%),
     radial-gradient(ellipse at 85% 100%, #7dcea0 0%, transparent 45%),
@@ -84,6 +88,7 @@ body {
   box-shadow: none;
   cursor: crosshair;
   outline: none;
+  touch-action: none;
   /* Critical: let the hi-DPI backing store stay sharp when CSS-sized */
   image-rendering: auto;
 }

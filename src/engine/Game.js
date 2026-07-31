@@ -210,11 +210,20 @@ export class Game {
     if (!customer) return null;
     const recipeId = bucket === 'order' ? customer.order?.id : null;
     this.audio.playVoice(customer.species.id, bucket, recipeId, opts);
-    const spoken = this.audio.voiceText(customer.species.id, bucket, recipeId);
-    if (spoken) return spoken;
-    if (bucket === 'greet') return customer.greetLine;
-    if (bucket === 'order') return customer.orderLine;
-    return customer.chatLine || null;
+    const spoken =
+      this.audio.voiceText(customer.species.id, bucket, recipeId) ||
+      (bucket === 'greet'
+        ? customer.greetLine
+        : bucket === 'order'
+          ? customer.orderLine
+          : customer.chatLine);
+    // Keep the bound customer line in sync with whatever we just spoke.
+    if (spoken) {
+      if (bucket === 'greet') customer.greetLine = spoken;
+      else if (bucket === 'order') customer.orderLine = spoken;
+      else if (bucket === 'chat') customer.chatLine = spoken;
+    }
+    return spoken || null;
   }
 
   _cueOrderVoice(customer) {
@@ -606,57 +615,13 @@ export class Game {
       if (this.hud.casePickerOpen) {
         // clicks handled via hud hitTest above
       } else {
-        const customer = this.customerAt(world.x, world.y);
-        const dirty = this.seating.hitDirty(world.x, world.y);
-        const hit = this.interact.hitTest(world.x, world.y, this.level.interactables);
-        // Prefer stations and customers — never accidental self-talk.
-        if (dirty && Math.hypot(this.player.cx - dirty.x, this.player.cy - dirty.y) < 70) {
-          this._pickupDirtyPlate(dirty);
-        } else if (customer) {
-          this._talkToCustomer(customer);
-        } else if (hit && this.interact.inReach(this.player, hit)) {
-          this.useInteractable(hit);
-        } else if (hit) {
-          this.player.setClickTarget(hit.x + hit.w / 2, hit.y + hit.h / 2);
-          this.audio.playSfx('click');
-        } else {
-          this.player.setClickTarget(world.x, world.y);
-          this.audio.playSfx('click');
-        }
+        // Tap / click = same as E (grab, talk, bake). Never walk-to-click.
+        this._doPrimaryAction();
       }
     }
 
     if (this.input.justPressed('e') && !this.hud.casePickerOpen) {
-      const stationDistance = nearest
-        ? Math.hypot(
-            this.player.cx - (nearest.x + nearest.w / 2),
-            this.player.cy - (nearest.y + nearest.h / 2),
-          )
-        : Infinity;
-      const talkDistance = this.talkTarget
-        ? Math.hypot(this.player.cx - this.talkTarget.cx, this.player.cy - this.talkTarget.cy)
-        : Infinity;
-      // Closing: pick up tableware before other nearby interactions.
-      if (this.phase === 'CLOSING') {
-        if (
-          this.player.dirtyDishes.length >= this.player.dishCarryMax &&
-          this.seating.dirtyCount()
-        ) {
-          this.hud.toast('Dish stack full — take it to the kitchen DISHWASHER!');
-        } else if (this._pickupNearestDirtyDish(90)) {
-          // Picked up; carry the stack to the dishwasher.
-        } else if (nearest) {
-          this.useInteractable(nearest);
-        }
-      } else if (this.talkTarget && (!nearest || talkDistance + 12 < stationDistance)) {
-        this._talkToCustomer(this.talkTarget);
-      } else if (nearest) {
-        this.useInteractable(nearest);
-      } else if (this.talkTarget) {
-        this._talkToCustomer(this.talkTarget);
-      } else {
-        this._pickupNearestDirtyDish(56);
-      }
+      this._doPrimaryAction();
     }
 
     this.spawner.setDay(this.day);
@@ -834,8 +799,10 @@ export class Game {
       this._voiceGreetingCustomer === customer ||
       (this.profile.active && this.profile.customer === customer);
     if (greetingBusy && !forceVoice) {
-      // Show text now; play chat voice after greet/order finishes.
-      dialogue.text = `${customer.name}: ${customer.chatLine}`;
+      // Show the same chat transcript we'll speak after greet/order finishes.
+      const pending =
+        this.audio.voiceText(customer.species.id, 'chat') || customer.chatLine;
+      dialogue.text = `${customer.name}: ${pending}`;
       this._pendingChatCustomer = customer;
       this.camera.focus(customer, 1.2, 3);
       return;
@@ -847,6 +814,51 @@ export class Game {
 
   _talkToSelf() {
     // Bear only chats with customers — no self-talk.
+  }
+
+  /**
+   * Shared action for E and tap/click: talk, use nearest station, or bus dishes.
+   * Never walks the bear and never triggers self-talk.
+   */
+  _doPrimaryAction() {
+    const nearest = this.interact.nearest ||
+      this.interact.update(this.player, this.level.interactables);
+    this.talkTarget = this.nearestCustomer(94);
+    const stationDistance = nearest
+      ? Math.hypot(
+          this.player.cx - (nearest.x + nearest.w / 2),
+          this.player.cy - (nearest.y + nearest.h / 2),
+        )
+      : Infinity;
+    const talkDistance = this.talkTarget
+      ? Math.hypot(this.player.cx - this.talkTarget.cx, this.player.cy - this.talkTarget.cy)
+      : Infinity;
+
+    if (this.phase === 'CLOSING') {
+      if (
+        this.player.dirtyDishes.length >= this.player.dishCarryMax &&
+        this.seating.dirtyCount()
+      ) {
+        this.hud.toast('Dish stack full — take it to the kitchen DISHWASHER!');
+        return;
+      }
+      if (this._pickupNearestDirtyDish(90)) return;
+      if (nearest) {
+        this.useInteractable(nearest);
+        return;
+      }
+      return;
+    }
+
+    if (this.talkTarget && (!nearest || talkDistance + 12 < stationDistance)) {
+      this._talkToCustomer(this.talkTarget);
+    } else if (nearest) {
+      this.useInteractable(nearest);
+    } else if (this.talkTarget) {
+      this._talkToCustomer(this.talkTarget);
+    } else {
+      this._pickupNearestDirtyDish(56);
+    }
   }
 
   _deliverTray(tray) {
@@ -1540,7 +1552,7 @@ export class Game {
     this.wrapText(ctx, dialogue.text, 565).forEach((line, i) => ctx.fillText(line, 195, 490 + i * 20));
     ctx.fillStyle = '#6a4a28';
     ctx.font = '12px Fredoka, sans-serif';
-    ctx.fillText('Click or press E to continue', 195, 525);
+    ctx.fillText('Tap or E to continue', 195, 525);
   }
 
   wrapText(ctx, text, width) {

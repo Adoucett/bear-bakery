@@ -142,7 +142,8 @@ export class ProfileCard {
 
     ctx.fillStyle = '#5a4030';
     ctx.font = '14px Fredoka, sans-serif';
-    wrapLines(ctx, `“${c.greetLine}”`, cardW - 130, 2).forEach((line, i) => {
+    const spoken = this.orderCued && c.orderLine ? c.orderLine : c.greetLine;
+    wrapLines(ctx, `“${spoken}”`, cardW - 130, 2).forEach((line, i) => {
       ctx.fillText(line, x + 108, y + 92 + i * 17);
     });
 

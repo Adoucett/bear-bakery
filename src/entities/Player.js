@@ -54,12 +54,21 @@ export class Player extends Character {
    * @param {{x:number,y:number,w:number,h:number}[]} walls
    */
   update(dt, input, walls) {
-    // F toggles follow mode when already in follow; classic uses click-to-move.
+    // F toggles follow mode when already in follow; classic uses keys / touch-drag.
     if (input.justPressed('f') && this.controlMode === 'follow') {
       this.mouseFollowToggle = !this.mouseFollowToggle;
     }
-    const allowFollow = this.controlMode === 'follow' && this.mouseFollowToggle;
-    this.mouseFollow = allowFollow || (this.controlMode === 'follow' && input.mouse.right);
+
+    let follow = false;
+    if (this.controlMode === 'follow' && this.mouseFollowToggle) {
+      follow = input.wantsPointerFollow('follow');
+    } else if (this.controlMode === 'classic') {
+      // iPad: drag-to-move even in classic (no WASD on screen).
+      follow = input.wantsPointerFollow('classic');
+    } else if (this.controlMode === 'follow' && input.mouse.right) {
+      follow = !input.uiBlocksFollow;
+    }
+    this.mouseFollow = follow;
 
     let mx = 0;
     let my = 0;
@@ -76,11 +85,12 @@ export class Player extends Character {
       const len = Math.hypot(mx, my) || 1;
       mx /= len;
       my /= len;
-    } else if (this.mouseFollow && !input.uiBlocksFollow) {
+    } else if (this.mouseFollow) {
       const dx = input.mouse.x - this.cx;
       const dy = input.mouse.y - this.cy;
       const dist = Math.hypot(dx, dy);
-      if (dist > 12) {
+      // Dead zone: fine taps / station clicks near the bear won't shove him.
+      if (dist > CONFIG.FOLLOW_DEAD_ZONE) {
         mx = dx / dist;
         my = dy / dist;
       }
