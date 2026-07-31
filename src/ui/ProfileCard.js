@@ -3,6 +3,7 @@ import { displayOrderText } from '../data/dialogue.js';
 import { recipeIngredientLabels } from '../data/recipes.js';
 import { drawCharacterArt } from '../entities/CharacterArt.js';
 import { resolveDirectionImage } from '../entities/Facing.js';
+import { getPerf } from '../engine/Perf.js';
 
 /** Card bounds chosen to clear the stock panel (left) and economy panel (right). */
 const CARD = { x: 250, y: 150, w: 420, h: 305 };
@@ -96,9 +97,11 @@ export class ProfileCard {
     const { x, y, w: cardW, h: cardH } = CARD;
 
     ctx.save();
-    ctx.shadowColor = 'rgba(20, 12, 8, 0.35)';
-    ctx.shadowBlur = 18;
-    ctx.shadowOffsetY = 6;
+    if (getPerf().shadows) {
+      ctx.shadowColor = 'rgba(20, 12, 8, 0.35)';
+      ctx.shadowBlur = 18;
+      ctx.shadowOffsetY = 6;
+    }
     ctx.fillStyle = 'rgba(255, 248, 231, 0.98)';
     ctx.strokeStyle = COLORS.butter;
     ctx.lineWidth = 4;

@@ -162,12 +162,13 @@ export class ShopUI {
     } else if (canBuy) {
       ctx.fillStyle = '#fff3c4';
     } else {
-      ctx.fillStyle = '#c8c2b8';
-      ctx.filter = 'grayscale(1)';
+      // Avoid CSS filter grayscale — very expensive on mobile Safari.
+      ctx.fillStyle = '#b0aaa0';
+      ctx.globalAlpha = 0.72;
     }
     roundRect(ctx, x, y, w, h, 10);
     ctx.fill();
-    ctx.filter = 'none';
+    ctx.globalAlpha = 1;
 
     if (shine) {
       const pulse = 0.45 + Math.sin(this.time * 4) * 0.25;

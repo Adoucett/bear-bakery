@@ -19,11 +19,13 @@
 html, body {
   width: 100%;
   height: 100%;
+  height: 100dvh;
   overflow: hidden;
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
   background:
     radial-gradient(ellipse at 15% 0%, #ffb347 0%, transparent 42%),
     radial-gradient(ellipse at 85% 100%, #7dcea0 0%, transparent 45%),
@@ -46,12 +48,37 @@ body {
 #frame {
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0;
   background: #1a100c;
+}
+
+.is-immersive #hint,
+.is-fullscreen #hint,
+#frame:fullscreen #hint,
+#frame:-webkit-full-screen #hint {
+  display: none;
+}
+
+.is-immersive #fullscreen {
+  opacity: 0.55;
+}
+
+.is-immersive #game,
+.is-fullscreen #game,
+#frame:fullscreen #game,
+#frame:-webkit-full-screen #game {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  width: 100vw !important;
+  height: 100dvh !important;
+  max-width: 100vw;
+  max-height: 100dvh;
 }
 
 #frame:fullscreen,
@@ -62,8 +89,8 @@ body {
 
 #fullscreen {
   position: fixed;
-  top: 12px;
-  right: 14px;
+  top: max(12px, env(safe-area-inset-top));
+  right: max(14px, env(safe-area-inset-right));
   z-index: 5;
   border: 1px solid rgba(255, 201, 74, .75);
   border-radius: 8px;
@@ -73,6 +100,8 @@ body {
   padding: 8px 12px;
   cursor: pointer;
   backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  touch-action: manipulation;
 }
 
 #game {
@@ -80,8 +109,10 @@ body {
   /* JS Display scaler sets exact pixel width/height; CSS is a fallback */
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   max-width: 100vw;
   max-height: 100vh;
+  max-height: 100dvh;
   background: #2a1a12;
   border: 0;
   border-radius: 0;
@@ -89,15 +120,11 @@ body {
   cursor: crosshair;
   outline: none;
   touch-action: none;
-  /* Critical: let the hi-DPI backing store stay sharp when CSS-sized */
   image-rendering: auto;
 }
 
 #game:focus {
-  box-shadow:
-    0 0 0 3px #8b4d2b,
-    0 0 0 7px rgba(95, 211, 154, 0.55),
-    0 18px 40px rgba(0, 0, 0, 0.45);
+  box-shadow: none;
 }
 
 #hint {
@@ -112,29 +139,14 @@ body {
   border: 2px solid rgba(255, 201, 74, 0.55);
 }
 
-.is-fullscreen #hint,
-#frame:fullscreen #hint,
-#frame:-webkit-full-screen #hint {
-  display: none;
-}
-
-.is-fullscreen #game,
-#frame:fullscreen #game,
-#frame:-webkit-full-screen #game {
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-  max-width: none;
-  max-height: none;
-}
-
 #hint strong {
   color: var(--butter);
 }
 
 @media (max-width: 700px) {
   #hint {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    padding: 4px 10px;
   }
   #fullscreen {
     font-size: 12px;

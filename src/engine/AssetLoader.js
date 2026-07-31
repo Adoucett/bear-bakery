@@ -1,3 +1,5 @@
+import { getPerf } from './Perf.js';
+
 export class AssetLoader {
   constructor() {
     /** @type {Map<string, CanvasImageSource>} */
@@ -10,6 +12,7 @@ export class AssetLoader {
    */
   async loadImages(imageMap) {
     const entries = Object.entries(imageMap);
+    const perf = getPerf();
     await Promise.all(
       entries.map(([key, src]) =>
         new Promise((resolve) => {
@@ -18,16 +21,8 @@ export class AssetLoader {
           img.onload = async () => {
             try {
               const prepared = prepareImage(key, img);
-              // Prefer decoded bitmap when available (sharper + less jank on first draw)
-              if (typeof createImageBitmap === 'function') {
-                const bmp = await createImageBitmap(prepared, {
-                  premultiplyAlpha: 'premultiply',
-                  colorSpaceConversion: 'default',
-                });
-                this.images.set(key, /** @type {any} */ (bmp));
-              } else {
-                this.images.set(key, prepared);
-              }
+              const optimized = await optimizeSprite(prepared, perf.spriteMaxEdge);
+              this.images.set(key, /** @type {any} */ (optimized));
             } catch {
               this.images.set(key, img);
             }
@@ -54,9 +49,60 @@ export class AssetLoader {
 }
 
 /**
+ * Decode + optionally downscale once at load so gameplay never bilinear-scales
+ * huge PNGs every frame (the main iPhone lag source alongside high DPR).
+ * @param {CanvasImageSource} source
+ * @param {number} maxEdge
+ * @returns {Promise<CanvasImageSource>}
+ */
+async function optimizeSprite(source, maxEdge) {
+  const w =
+    /** @type {any} */ (source).naturalWidth ||
+    /** @type {any} */ (source).width ||
+    0;
+  const h =
+    /** @type {any} */ (source).naturalHeight ||
+    /** @type {any} */ (source).height ||
+    0;
+  if (!w || !h) return source;
+
+  const longest = Math.max(w, h);
+  const needsResize = longest > maxEdge;
+  const scale = needsResize ? maxEdge / longest : 1;
+  const tw = Math.max(1, Math.round(w * scale));
+  const th = Math.max(1, Math.round(h * scale));
+
+  if (typeof createImageBitmap === 'function') {
+    try {
+      if (needsResize) {
+        return await createImageBitmap(source, {
+          resizeWidth: tw,
+          resizeHeight: th,
+          resizeQuality: 'high',
+        });
+      }
+      return await createImageBitmap(source);
+    } catch {
+      // Fall through to canvas path (older Safari).
+    }
+  }
+
+  if (!needsResize) return source;
+  const canvas = document.createElement('canvas');
+  canvas.width = tw;
+  canvas.height = th;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return source;
+  ctx.imageSmoothingEnabled = true;
+  if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(/** @type {CanvasImageSource} */ (source), 0, 0, tw, th);
+  return canvas;
+}
+
+/**
  * Remove the opaque olive generation backdrop from the red-panda direction
  * set. This happens once at load time; all other PNGs stay byte-for-byte
- * visually unchanged.
+ * visually unchanged (until optional downscale).
  *
  * @param {string} key
  * @param {HTMLImageElement} image
@@ -98,9 +144,6 @@ function prepareImage(key, image) {
     queue[write++] = pixel;
   };
 
-  // Flood only from the canvas perimeter. This removes the generated
-  // backdrop while preserving similarly colored fur/details enclosed by
-  // the character silhouette.
   for (let x = 0; x < width; x += 1) {
     enqueue(x);
     enqueue((height - 1) * width + x);

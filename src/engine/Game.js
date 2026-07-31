@@ -6,6 +6,7 @@ import { AssetLoader } from './AssetLoader.js';
 import { AudioManager } from './AudioManager.js';
 import { IsoCamera } from './IsoCamera.js';
 import { SaveManager } from './SaveManager.js';
+import { getPerf } from './Perf.js';
 import { PATISSERIE, collisionRects, fixtureDefinitions, decorDefinitions } from '../world/RestaurantLayout.js';
 import { IsoRenderer } from '../world/IsoRenderer.js';
 import { isoToWorld } from '../world/IsoMath.js';
@@ -37,9 +38,11 @@ export class Game {
    */
   constructor(canvas) {
     this.canvas = canvas;
+    const perf = getPerf();
+    this.perf = perf;
     this.ctx = canvas.getContext('2d', {
       alpha: false,
-      desynchronized: true,
+      desynchronized: perf.desynchronized,
       colorSpace: 'srgb',
     }) || canvas.getContext('2d');
     this.display = new Display(canvas);
@@ -288,7 +291,14 @@ export class Game {
       this.update(this.STEP);
       this._acc -= this.STEP;
     }
-    this.render();
+    // Cap draw rate on phones so Safari isn't crushed by 60fps @ retina.
+    const minFrame = 1 / (this.perf?.targetFps || 60);
+    if (this._renderAcc == null) this._renderAcc = minFrame;
+    this._renderAcc += dt;
+    if (this._renderAcc >= minFrame) {
+      this._renderAcc %= minFrame;
+      this.render();
+    }
     requestAnimationFrame((t) => this.loop(t));
   }
 

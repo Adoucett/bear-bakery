@@ -3,6 +3,7 @@
  * Falls back to procedural CuteAnimals if a sprite is missing.
  */
 import { drawCuteAnimal } from './CuteAnimals.js';
+import { getPerf } from '../engine/Perf.js';
 
 /** Per-species motion profiles for PNG sprites (feet-pivoted). */
 function getSpriteMotion(id, time, walking, s) {
@@ -144,7 +145,7 @@ export function drawCharacterArt(ctx, opts) {
 
   ctx.save();
   ctx.imageSmoothingEnabled = true;
-  if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high';
+  if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = getPerf().smoothing;
   ctx.translate(
     feetX + motion.x,
     feetY - walkBob + breath * (s / 48) + motion.y - happyBounce,

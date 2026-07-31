@@ -5,6 +5,7 @@ import { drawCharacterArt } from '../entities/CharacterArt.js';
 import { poseFromState, resolveDirectionImage } from '../entities/Facing.js';
 import { getSpecies } from '../data/species.js';
 import { COLORS } from '../config.js';
+import { getPerf } from '../engine/Perf.js';
 
 /** fixture.kind / decor.kind → ASSET_MANIFEST image key */
 const FURNITURE_KEYS = {
@@ -135,7 +136,7 @@ export class IsoRenderer {
       drawH = drawW / aspect;
     }
     ctx.imageSmoothingEnabled = true;
-    if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = 'high';
+    if ('imageSmoothingQuality' in ctx) ctx.imageSmoothingQuality = getPerf().smoothing;
     ctx.drawImage(/** @type {CanvasImageSource} */ (img), p.x - drawW / 2, p.y - drawH, drawW, drawH);
     return true;
   }
