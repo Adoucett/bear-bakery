@@ -14,7 +14,8 @@ export class Player extends Character {
     super({ species: SPECIES.bear, assets, x, y, name: 'Baker Bear' });
     this.speed = CONFIG.PLAYER_SPEED;
     this.target = null;
-    /** Default on for touch-screen bakery installs; toggle with F. */
+    /** @type {'follow'|'classic'} */
+    this.controlMode = 'follow';
     this.mouseFollow = true;
     this.mouseFollowToggle = true;
     this.held = null;
@@ -53,11 +54,12 @@ export class Player extends Character {
    * @param {{x:number,y:number,w:number,h:number}[]} walls
    */
   update(dt, input, walls) {
-    // Toggle mouse-follow with F
-    if (input.justPressed('f')) {
+    // F toggles follow mode when already in follow; classic uses click-to-move.
+    if (input.justPressed('f') && this.controlMode === 'follow') {
       this.mouseFollowToggle = !this.mouseFollowToggle;
     }
-    this.mouseFollow = this.mouseFollowToggle || input.mouse.right || input.pointerDown;
+    const allowFollow = this.controlMode === 'follow' && this.mouseFollowToggle;
+    this.mouseFollow = allowFollow || (this.controlMode === 'follow' && input.mouse.right);
 
     let mx = 0;
     let my = 0;
@@ -74,7 +76,7 @@ export class Player extends Character {
       const len = Math.hypot(mx, my) || 1;
       mx /= len;
       my /= len;
-    } else if (this.mouseFollow) {
+    } else if (this.mouseFollow && !input.uiBlocksFollow) {
       const dx = input.mouse.x - this.cx;
       const dy = input.mouse.y - this.cy;
       const dist = Math.hypot(dx, dy);
@@ -112,9 +114,15 @@ export class Player extends Character {
     return { usingKeyboard };
   }
 
+  setControlMode(mode) {
+    this.controlMode = mode === 'classic' ? 'classic' : 'follow';
+    this.mouseFollowToggle = this.controlMode === 'follow';
+    this.mouseFollow = this.mouseFollowToggle;
+    if (this.controlMode === 'classic') this.target = null;
+  }
+
   setClickTarget(x, y) {
     this.target = { x, y };
-    // Keep follow mode on; click targets are used when follow is toggled off.
   }
 
   /**

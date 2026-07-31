@@ -11,6 +11,8 @@ export class Input {
     this.mouse = { x: 0, y: 0, left: false, right: false, leftClick: false, rightClick: false };
     /** True while a finger / pen is actively touching the canvas. */
     this.pointerDown = false;
+    /** When true, Player ignores mouse-follow (cursor over HUD). */
+    this.uiBlocksFollow = false;
     this._bound = false;
     this._activePointerId = null;
     this.bind();

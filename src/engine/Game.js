@@ -6,7 +6,7 @@ import { AssetLoader } from './AssetLoader.js';
 import { AudioManager } from './AudioManager.js';
 import { IsoCamera } from './IsoCamera.js';
 import { SaveManager } from './SaveManager.js';
-import { PATISSERIE, collisionRects, fixtureDefinitions } from '../world/RestaurantLayout.js';
+import { PATISSERIE, collisionRects, fixtureDefinitions, decorDefinitions } from '../world/RestaurantLayout.js';
 import { IsoRenderer } from '../world/IsoRenderer.js';
 import { isoToWorld } from '../world/IsoMath.js';
 import { Player } from '../entities/Player.js';
@@ -20,7 +20,7 @@ import { StaffSystem } from '../systems/StaffSystem.js';
 import { ConversationSystem } from '../systems/ConversationSystem.js';
 import { StockSystem } from '../systems/StockSystem.js';
 import { SeatingSystem } from '../systems/SeatingSystem.js';
-import { FoodConveyorSystem } from '../systems/FoodConveyorSystem.js';
+import { FoodConveyorSystem, CONVEYOR_PATH } from '../systems/FoodConveyorSystem.js';
 import { createServeApi } from '../systems/ServeFlow.js';
 import { HUD } from '../ui/HUD.js';
 import { ProfileCard } from '../ui/ProfileCard.js';
@@ -29,7 +29,7 @@ import { ShopUI } from '../ui/ShopUI.js';
 import { getIngredient } from '../data/ingredients.js';
 import { getRecipe, recipeIngredientLabels } from '../data/recipes.js';
 import { DIFFICULTY_PRESETS } from '../data/difficulty.js';
-import { displayOrderText, fillDialogueDisplay, pickBearSelfTalk, pickDialogue } from '../data/dialogue.js';
+import { displayOrderText, fillDialogueDisplay, pickDialogue } from '../data/dialogue.js';
 
 export class Game {
   /**
@@ -126,6 +126,7 @@ export class Game {
       x: this.layout.waypoints.playerStart.x,
       y: this.layout.waypoints.playerStart.y,
     });
+    if (this.saved?.controlMode) this.player.setControlMode(this.saved.controlMode);
     if (this.saved?.cooking) this.cooking.restore(this.saved.cooking);
     this._refreshLayout();
     if (this.saved?.heldPlate?.recipeId) {
@@ -185,10 +186,14 @@ export class Game {
     if (this.player) this.player.spriteOverride = this.economy.bearSpriteKey();
   }
 
-  /** Sync fixtures, collision, and oven slots with owned upgrades. */
+  /** Sync fixtures, collision, decor, and oven slots with owned upgrades. */
   _refreshLayout() {
     const secondOven = this.economy.has('secondOven');
     this.layout.fixtures = fixtureDefinitions({ secondOven });
+    this.layout.decor = decorDefinitions({
+      extraCouch: this.economy.has('extraCouch'),
+      extraChairs: this.economy.has('extraChairs'),
+    });
     this.level.interactables = this.layout.fixtures;
     this.walls = collisionRects(this.economy.extraTables, { secondOven });
     this.cooking.ensureOvens(secondOven);
@@ -283,29 +288,7 @@ export class Game {
   }
 
   persist() {
-    this.economy.money = this.money;
-    this.save.save({
-      day: this.day,
-      difficulty: this.difficulty,
-      phase: this.phase,
-      dayTimeLeft: this.dayTimeLeft,
-      inventory: this.inventory.serialize(),
-      pastryStock: this.pastryStock.serialize(),
-      economy: this.economy.serialize(),
-      cooking: this.cooking.serialize(),
-      heldPlate: this.player?.heldPlate
-        ? {
-            recipeId: this.player.heldPlate.recipe.id,
-            ingredients: [...this.player.heldPlate.ingredients],
-          }
-        : null,
-      dirtyDishes: [...(this.player?.dirtyDishes || [])],
-      // Plates still sitting on tables, so cleanup survives a refresh.
-      tableDishes: [...(this.seating?.dirty || [])],
-      bathroomDirty: [...(this.bathroomDirty || [])],
-      pinnedRecipeId: this.pinnedRecipeId,
-      savedAt: Date.now(),
-    });
+    this.save.save(this._savePayload());
   }
 
   giveDebugMoney(amount = 100) {
@@ -580,6 +563,21 @@ export class Game {
 
     const walls = this.level.getCollisionRects();
     const screenMouse = { ...this.input.mouse };
+    // Rebuild HUD zones first so follow doesn't chase the cursor over UI.
+    this.hud.rebuildHitZones({
+      cooking: this.cooking,
+      pastryStock: this.pastryStock,
+      debugMode: this.debugMoney,
+      pinnedRecipe: this.pinnedRecipeId ? getRecipe(this.pinnedRecipeId) : null,
+      activeOrder: this.spawner?.findWaitingForFood()?.order || null,
+    });
+    const overHud =
+      this.hud.hitTest(screenMouse.x, screenMouse.y) ||
+      screenMouse.y < 52 ||
+      screenMouse.y > 500 ||
+      (screenMouse.x > 660 && screenMouse.y < 340);
+    this.input.uiBlocksFollow = !!overHud;
+
     const world = this.worldMouse();
     this.input.mouse.x = world.x;
     this.input.mouse.y = world.y;
@@ -587,19 +585,12 @@ export class Game {
     this.input.mouse.x = screenMouse.x;
     this.input.mouse.y = screenMouse.y;
 
-    // HUD buttons (put back, free money, case picker) use screen coords
-    this.hud.rebuildHitZones({
-      cooking: this.cooking,
-      pastryStock: this.pastryStock,
-      debugMode: this.debugMoney,
-    });
     if (this.input.mouse.leftClick) {
       const hudHit = this.hud.hitTest(screenMouse.x, screenMouse.y);
       if (hudHit) {
         this._handleHudClick(hudHit);
         this._skipWorldClick = true;
       } else {
-        // A click that dismissed the greeting card must not also hit the world.
         this._skipWorldClick = !!this._cardClickConsumed;
       }
     } else {
@@ -618,24 +609,18 @@ export class Game {
         const customer = this.customerAt(world.x, world.y);
         const dirty = this.seating.hitDirty(world.x, world.y);
         const hit = this.interact.hitTest(world.x, world.y, this.level.interactables);
-        const clickedSelf =
-          this.player &&
-          Math.hypot(this.player.cx - world.x, this.player.cy - world.y) <
-            Math.max(36, this.player.size * 0.7);
+        // Prefer stations and customers — never accidental self-talk.
         if (dirty && Math.hypot(this.player.cx - dirty.x, this.player.cy - dirty.y) < 70) {
           this._pickupDirtyPlate(dirty);
         } else if (customer) {
           this._talkToCustomer(customer);
-        } else if (clickedSelf) {
-          this._talkToSelf();
         } else if (hit && this.interact.inReach(this.player, hit)) {
-          // Use the station you actually clicked, even if another is nearer.
           this.useInteractable(hit);
-        } else if (!hit) {
-          this.player.setClickTarget(world.x, world.y);
-          this.audio.playSfx('click');
         } else if (hit) {
           this.player.setClickTarget(hit.x + hit.w / 2, hit.y + hit.h / 2);
+          this.audio.playSfx('click');
+        } else {
+          this.player.setClickTarget(world.x, world.y);
           this.audio.playSfx('click');
         }
       }
@@ -676,6 +661,12 @@ export class Game {
 
     this.spawner.setDay(this.day);
     this.spawner.update(dt, walls, {
+      dirtyPlateCount: () => this.seating.dirtyCount(),
+      onMessAnnoyed: (customer) => {
+        this.hud.toast(`${customer.name}: Too many dirty plates — clean up!`);
+        this.audio.playSfx('sad');
+      },
+      onReachedPickup: (customer) => this._finishPickup(customer),
       onReadyToOrder: (customer) => {
         if (this.profile.active) {
           if (!this._greetingQueue.includes(customer)) this._greetingQueue.push(customer);
@@ -693,6 +684,10 @@ export class Game {
         if (customer.seat) this.seating.release(customer, customer.served);
         this.tickets.cancelFor(customer);
         this.foodConveyor.trays = this.foodConveyor.trays.filter((t) => t.customer !== customer);
+        if (customer._pendingPlate?.recipe?.id) {
+          this.pastryStock.add(customer._pendingPlate.recipe.id, 1);
+          customer._pendingPlate = null;
+        }
         if (!happy) {
           this.audio.playSfx('sad');
           this.hud.toast(`${customer.name} left hungry…`);
@@ -781,11 +776,16 @@ export class Game {
       }
       const dishesRemaining =
         this.seating.dirtyCount() + this.player.dirtyDishes.length;
+      const bathsDirty = this.bathroomDirty.size;
       if (dishesRemaining > 0) {
         this.hud.setGuide(
           this.player.dirtyDishes.length
             ? `Carry ${this.player.dirtyDishes.length} dish(es) to the kitchen DISHWASHER!`
             : `Pick up ${this.seating.dirtyCount()} dirty dish(es) from the tables.`,
+        );
+      } else if (bathsDirty > 0) {
+        this.hud.setGuide(
+          `Scrub the restroom — ${bathsDirty} stall${bathsDirty === 1 ? '' : 's'} still dirty!`,
         );
       } else {
         if (!this.cleanBonusGiven) {
@@ -846,12 +846,74 @@ export class Game {
   }
 
   _talkToSelf() {
-    const line = pickBearSelfTalk();
-    this.conversation.openSelf(line);
-    // Prefer a chat clip if available; otherwise just show the line.
-    this.audio.playVoice('bear', 'chat', null, { interrupt: false });
-    this.hud.toast(`Baker Bear: ${line}`);
-    this.camera.focus(this.player, 1.15, 2);
+    // Bear only chats with customers — no self-talk.
+  }
+
+  _deliverTray(tray) {
+    const { plate, customer } = tray;
+    if (!customer || customer.served || customer.state === 'done' || customer.state === 'leaving') {
+      if (plate?.recipe?.id) this.pastryStock.add(plate.recipe.id, 1);
+      return;
+    }
+    // Guest walks to the pickup window to collect the tray.
+    customer._pendingPlate = plate;
+    const pickup = this.layout.waypoints.pickup || CONVEYOR_PATH.pickup;
+    customer.walkToPickup(pickup);
+    this.hud.toast(`${customer.name} is walking over to pick up their treat!`);
+    this.camera.focus({ x: pickup.x, y: pickup.y }, 1.15, 2);
+  }
+
+  _finishPickup(customer) {
+    const plate = customer._pendingPlate;
+    customer._pendingPlate = null;
+    if (!plate || customer.served) {
+      if (customer.seat) {
+        customer.state = 'waiting';
+        customer.target = { x: customer.seat.x, y: customer.seat.y };
+      }
+      return;
+    }
+    const verdict = this.cooking.judgeServe(plate, customer);
+    this._applyServeVerdict(customer, plate, verdict);
+  }
+
+  _applyServeVerdict(customer, plate, verdict) {
+    if (verdict.good) {
+      customer.receiveFood(true, 'happy');
+      const tip = this.economy.tipBonus(plate.recipe.price);
+      const earned = plate.recipe.price + tip;
+      this.money += earned;
+      this.economy.money = this.money;
+      this.happyServesToday += 1;
+      this.persist();
+      this.audio.playSfx('happy');
+      const tipText = tip ? ` (+$${tip} tip)` : '';
+      this.hud.toast(
+        `${customer.name}: ${fillDialogueDisplay(pickDialogue(customer.species.id, 'thanks'), {
+          name: customer.name,
+          order: plate.recipe,
+        })} +$${earned}${tipText}`,
+      );
+      this.stars = Math.min(5, Math.floor(this.money / 20));
+      this.camera.focus(customer, 1.22, 3);
+      if (this.day === 1 && this.happyServesToday === 1 && this.phase === 'SERVICE') {
+        this.offerEarlyClose = true;
+        this.hud.toast('Great first customer! Press Enter to close early and clean up →');
+      }
+    } else if (verdict.emote === 'spit') {
+      customer.receiveFood(false, 'spit');
+      this.audio.playSfx('sad');
+      this.hud.toast(
+        `${customer.name}: ${fillDialogueDisplay(pickDialogue(customer.species.id, 'dislikeReact'), {
+          name: customer.name,
+          order: customer.order,
+        })}`,
+      );
+    } else {
+      customer.receiveFood(false, 'sad');
+      this.audio.playSfx('sad');
+      this.hud.toast(`${customer.name} looks disappointed…`);
+    }
   }
 
   _requestRestroom(customer) {
@@ -930,6 +992,26 @@ export class Game {
       this.audio.playSfx('confirm');
       return;
     }
+    if (hit.type === 'menu_download_save') {
+      this.persist();
+      this.save.download(this._savePayload());
+      this.hud.toast('Save file downloaded!');
+      this.audio.playSfx('confirm');
+      return;
+    }
+    if (hit.type === 'menu_load_save') {
+      this.save.promptUpload((data) => {
+        if (!data) {
+          this.hud.toast('Could not read that save file.');
+          return;
+        }
+        this.save.save(data);
+        this.hud.toast('Save loaded — refresh the page to apply.');
+        this.audio.playSfx('confirm');
+        window.location.reload();
+      });
+      return;
+    }
     if (hit.type === 'menu_skip_day') {
       this.paused = false;
       this._skipToNextDay();
@@ -940,6 +1022,18 @@ export class Game {
       this.hud.toast(muted ? 'Music muted' : 'Music on');
       return;
     }
+    if (hit.type === 'menu_controls') {
+      const mode = hit.payload === 'classic' ? 'classic' : 'follow';
+      this.player?.setControlMode(mode);
+      this.persist();
+      this.hud.toast(
+        mode === 'classic'
+          ? 'Classic controls: WASD + click + E'
+          : 'Mouse follow: bear tracks the pointer',
+      );
+      this.audio.playSfx('confirm');
+      return;
+    }
     if (hit.type === 'menu_difficulty') {
       this.difficulty = hit.payload;
       this.settings = DIFFICULTY_PRESETS[this.difficulty];
@@ -948,6 +1042,32 @@ export class Game {
       this.persist();
       this.audio.playSfx('confirm');
     }
+  }
+
+  _savePayload() {
+    this.economy.money = this.money;
+    return {
+      day: this.day,
+      difficulty: this.difficulty,
+      phase: this.phase,
+      dayTimeLeft: this.dayTimeLeft,
+      inventory: this.inventory.serialize(),
+      pastryStock: this.pastryStock.serialize(),
+      economy: this.economy.serialize(),
+      cooking: this.cooking.serialize(),
+      heldPlate: this.player?.heldPlate
+        ? {
+            recipeId: this.player.heldPlate.recipe.id,
+            ingredients: [...this.player.heldPlate.ingredients],
+          }
+        : null,
+      dirtyDishes: [...(this.player?.dirtyDishes || [])],
+      tableDishes: [...(this.seating?.dirty || [])],
+      bathroomDirty: [...(this.bathroomDirty || [])],
+      pinnedRecipeId: this.pinnedRecipeId,
+      controlMode: this.player?.controlMode || 'follow',
+      savedAt: Date.now(),
+    };
   }
 
   /** End the current day and jump straight into the next prep. */
@@ -1212,56 +1332,6 @@ export class Game {
     if (t) t.served = true;
   }
 
-  _deliverTray(tray) {
-    const { plate, customer } = tray;
-    if (!customer || customer.state !== 'waiting' || customer.served) {
-      // Guest left — try to return food to the case
-      if (plate?.recipe?.id) this.pastryStock.add(plate.recipe.id, 1);
-      return;
-    }
-    const verdict = this.cooking.judgeServe(plate, customer);
-
-    if (verdict.good) {
-      customer.receiveFood(true, 'happy');
-      const tip = this.economy.tipBonus(plate.recipe.price);
-      const earned = plate.recipe.price + tip;
-      this.money += earned;
-      this.economy.money = this.money;
-      this.happyServesToday += 1;
-      this.persist();
-      this.audio.playSfx('happy');
-      const tipText = tip ? ` (+$${tip} tip)` : '';
-      // Reaction toasts are never voiced, so the emoji is safe here.
-      this.hud.toast(
-        `${customer.name}: ${fillDialogueDisplay(pickDialogue(customer.species.id, 'thanks'), {
-          name: customer.name,
-          order: plate.recipe,
-        })} +$${earned}${tipText}`,
-      );
-      this.stars = Math.min(5, Math.floor(this.money / 20));
-      this.camera.focus(customer, 1.22, 3);
-      if (this.day === 1 && this.happyServesToday === 1 && this.phase === 'SERVICE') {
-        this.offerEarlyClose = true;
-        this.hud.toast('Great first customer! Press Enter to close early and clean up →');
-      }
-    } else if (verdict.emote === 'spit') {
-      customer.receiveFood(false, 'spit');
-      this.audio.playSfx('sad');
-      this.hud.toast(
-        `${customer.name}: ${fillDialogueDisplay(pickDialogue(customer.species.id, 'dislikeReact'), {
-          name: customer.name,
-          order: customer.order,
-        })}`,
-      );
-    } else {
-      customer.receiveFood(false, 'sad');
-      this.audio.playSfx('sad');
-      this.hud.toast(`${customer.name} looks sad… they wanted ${verdict.wanted?.name || 'their pick'}.`);
-    }
-
-    if (this.activeCustomer === customer) this.activeCustomer = null;
-  }
-
   _pickupDirtyPlate(plate) {
     if (this.player.dirtyDishes.length >= this.player.dishCarryMax) {
       this.hud.toast('Dish stack full — take it to the kitchen DISHWASHER!');
@@ -1408,6 +1478,9 @@ export class Game {
         highlightId: nearest?.id || null,
         hoverId: hover?.id || null,
         helpers: this.staff.activeHelpers(),
+        phase: this.phase,
+        fixtures: this.layout.fixtures,
+        decor: this.layout.decor || PATISSERIE.decor,
       },
     );
 
@@ -1417,6 +1490,7 @@ export class Game {
       stars: this.stars,
       muted: this.audio.muted,
       mouseFollow: this.player?.mouseFollow,
+      controlMode: this.player?.controlMode || 'follow',
       paused: this.paused,
       dayTimeLeft: this.dayTimeLeft,
       phase: this.phase,

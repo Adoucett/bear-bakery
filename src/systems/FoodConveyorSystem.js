@@ -1,10 +1,11 @@
-/** Serving counter start — first tray launches from here. */
-const START = { x: 460, y: 310 };
-/**
- * Holding area just left of the serve start so queued trays stack visibly
- * without overlapping the active tray.
- */
-const HOLD = { x: 430, y: 318 };
+/** Conveyor belt path — along the counter toward the dining pickup window. */
+export const CONVEYOR_PATH = {
+  start: { x: 400, y: 305 },
+  hold: { x: 370, y: 310 },
+  pickup: { x: 575, y: 250 },
+};
+
+const { start: START, hold: HOLD, pickup: PICKUP } = CONVEYOR_PATH;
 /** World-distance the lead tray must clear before the next is released. */
 const RELEASE_SPACING = 48;
 /** Slot offset between queued trays at the holding area. */
@@ -12,9 +13,9 @@ const QUEUE_SLOT = 18;
 const SPEED = 55;
 
 /**
- * Food trays ride from the serving counter toward the customer's table.
+ * Food trays ride from the register along the counter belt to the pickup window.
  * Multiple trays stagger at a holding area and release when the previous
- * has cleared RELEASE_SPACING from START.
+ * has cleared RELEASE_SPACING from START. Game handles customer walk-to-pickup.
  */
 export class FoodConveyorSystem {
   constructor() {
@@ -89,8 +90,8 @@ export class FoodConveyorSystem {
     const done = [];
     for (const tray of this.trays) {
       if (tray.delivered || tray.queued) continue;
-      const tx = tray.seat.x;
-      const ty = tray.seat.y - 8;
+      const tx = PICKUP.x;
+      const ty = PICKUP.y;
       const dx = tx - tray.x;
       const dy = ty - tray.y;
       const dist = Math.hypot(dx, dy);

@@ -406,7 +406,11 @@ export class HUD {
     }
 
     if (paused && !this.showTitle) {
-      this._drawMenu(ctx, { muted, difficulty });
+      this._drawMenu(ctx, {
+        muted,
+        difficulty,
+        controlMode: state.controlMode || 'follow',
+      });
     }
 
     if (this.showTitle) {
@@ -429,53 +433,70 @@ export class HUD {
     }
   }
 
-  _drawMenu(ctx, { muted, difficulty }) {
+  _drawMenu(ctx, { muted, difficulty, controlMode = 'follow' }) {
     this.menuZones = [];
     ctx.fillStyle = 'rgba(20,12,8,0.55)';
     ctx.fillRect(0, 0, 960, 640);
     ctx.fillStyle = 'rgba(255,248,231,0.98)';
-    roundRect(ctx, 280, 90, 400, 460, 18);
+    roundRect(ctx, 250, 40, 460, 560, 18);
     ctx.fill();
     ctx.strokeStyle = COLORS.butter;
     ctx.lineWidth = 4;
-    roundRect(ctx, 280, 90, 400, 460, 18);
+    roundRect(ctx, 250, 40, 460, 560, 18);
     ctx.stroke();
 
     ctx.fillStyle = COLORS.ink;
-    ctx.font = 'bold 36px Fredoka, sans-serif';
+    ctx.font = 'bold 34px Fredoka, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('Menu', 480, 140);
+    ctx.fillText('Menu', 480, 85);
 
     const buttons = [
-      { y: 170, label: 'Continue', type: 'menu_continue', color: COLORS.mint },
-      { y: 220, label: 'Save Now', type: 'menu_save', color: COLORS.butter },
-      { y: 270, label: 'Skip to Next Day', type: 'menu_skip_day', color: '#c8935b' },
-      { y: 320, label: muted ? 'Unmute Music' : 'Mute Music', type: 'menu_mute', color: COLORS.berry },
+      { y: 105, label: 'Continue', type: 'menu_continue', color: COLORS.mint },
+      { y: 150, label: 'Save Now', type: 'menu_save', color: COLORS.butter },
+      { y: 195, label: 'Download Save File', type: 'menu_download_save', color: '#c8935b' },
+      { y: 240, label: 'Load Save File', type: 'menu_load_save', color: '#c8935b' },
+      { y: 285, label: 'Skip to Next Day', type: 'menu_skip_day', color: '#a87850' },
+      { y: 330, label: muted ? 'Unmute Music' : 'Mute Music', type: 'menu_mute', color: COLORS.berry },
     ];
     for (const b of buttons) {
-      this._paintButton(ctx, 340, b.y, 280, 40, b.label, b.color);
-      this.menuZones.push({ x: 340, y: b.y, w: 280, h: 40, type: b.type });
+      this._paintButton(ctx, 320, b.y, 320, 36, b.label, b.color);
+      this.menuZones.push({ x: 320, y: b.y, w: 320, h: 36, type: b.type });
     }
 
     ctx.fillStyle = '#6a4a28';
-    ctx.font = 'bold 16px Fredoka, sans-serif';
-    ctx.fillText('Difficulty (applies next day)', 480, 390);
+    ctx.font = 'bold 15px Fredoka, sans-serif';
+    ctx.fillText('Controls', 480, 390);
+    const modes = [
+      { id: 'classic', label: 'Classic WASD+E', x: 290 },
+      { id: 'follow', label: 'Mouse Follow', x: 490 },
+    ];
+    for (const m of modes) {
+      const active = controlMode === m.id;
+      this._paintButton(ctx, m.x, 405, 180, 34, m.label, active ? COLORS.mint : '#e0c090');
+      this.menuZones.push({
+        x: m.x, y: 405, w: 180, h: 34, type: 'menu_controls', payload: m.id,
+      });
+    }
+
+    ctx.fillStyle = '#6a4a28';
+    ctx.font = 'bold 15px Fredoka, sans-serif';
+    ctx.fillText('Difficulty (next day)', 480, 470);
     const diffs = [
-      { id: 'cozy', label: 'Cozy', x: 310 },
+      { id: 'cozy', label: 'Cozy', x: 290 },
       { id: 'balanced', label: 'Balanced', x: 420 },
       { id: 'busy', label: 'Busy', x: 560 },
     ];
     for (const d of diffs) {
       const active = difficulty === d.id;
-      this._paintButton(ctx, d.x, 410, 100, 36, d.label, active ? COLORS.mint : '#e0c090');
+      this._paintButton(ctx, d.x, 485, 100, 34, d.label, active ? COLORS.mint : '#e0c090');
       this.menuZones.push({
-        x: d.x, y: 410, w: 100, h: 36, type: 'menu_difficulty', payload: d.id,
+        x: d.x, y: 485, w: 100, h: 34, type: 'menu_difficulty', payload: d.id,
       });
     }
 
     ctx.fillStyle = '#8a7360';
-    ctx.font = '14px Fredoka, sans-serif';
-    ctx.fillText('Press P or Esc to close', 480, 520);
+    ctx.font = '13px Fredoka, sans-serif';
+    ctx.fillText('Pin recipes in the Study Book (B) · P / Esc closes menu', 480, 560);
   }
 
   _paintButton(ctx, x, y, w, h, label, color) {

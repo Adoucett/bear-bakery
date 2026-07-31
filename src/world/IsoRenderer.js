@@ -4,6 +4,7 @@ import { getIngredient } from '../data/ingredients.js';
 import { drawCharacterArt } from '../entities/CharacterArt.js';
 import { poseFromState, resolveDirectionImage } from '../entities/Facing.js';
 import { getSpecies } from '../data/species.js';
+import { COLORS } from '../config.js';
 
 /** fixture.kind / decor.kind → ASSET_MANIFEST image key */
 const FURNITURE_KEYS = {
@@ -59,6 +60,8 @@ export class IsoRenderer {
       hoverId = null,
       helpers = [],
       fixtures = PATISSERIE.fixtures,
+      decor = PATISSERIE.decor,
+      phase = 'PREP',
     } = extras;
     if (assets) this.assets = assets;
     ctx.fillStyle = '#ebe4d8';
@@ -66,10 +69,10 @@ export class IsoRenderer {
 
     for (const room of PATISSERIE.rooms) this.drawRoom(ctx, room, camera);
     this.drawWalls(ctx, camera);
-    for (const door of PATISSERIE.doors) this.drawDoor(ctx, door, camera);
+    for (const door of PATISSERIE.doors) this.drawDoor(ctx, door, camera, phase);
 
     const layers = [
-      ...PATISSERIE.decor.map((item) => ({ ...item, layer: 'decor' })),
+      ...decor.map((item) => ({ ...item, layer: 'decor' })),
       ...tableDefinitions(economy.extraTables || 0).map((item) => ({
         ...item, kind: 'table', layer: 'table',
       })),
@@ -95,6 +98,7 @@ export class IsoRenderer {
         this.drawFixture(ctx, item, camera, inventory, cooking, economy, pastryStock, {
           highlightId,
           hoverId,
+          phase,
         });
       } else if (item.kind === 'table') this.drawTable(ctx, item, camera);
       else this.drawDecor(ctx, item, camera);
@@ -103,7 +107,7 @@ export class IsoRenderer {
     this.drawDirtyPlates(ctx, dirtyPlates, camera);
     this.drawFoodTrays(ctx, foodTrays, camera);
     this.drawTickets(ctx, tickets, camera);
-    this.drawIngredientLabels(ctx, camera, inventory, highlightId, hoverId);
+    this.drawIngredientLabels(ctx, camera, inventory, highlightId, hoverId, fixtures);
   }
 
   /**
@@ -284,16 +288,65 @@ export class IsoRenderer {
     }
   }
 
-  drawDoor(ctx, door, camera) {
+  drawDoor(ctx, door, camera, phase = 'PREP') {
     const p = this.feetPoint(door.x, door.y, door.w, door.h, camera);
+    const z = camera.zoom;
+    const isFront = door.id === 'frontDoor';
     const tall = door.h >= door.w;
-    const bw = tall ? 14 : 28;
-    const bh = tall ? 32 : 14;
-    ctx.fillStyle = '#3a6b68';
+    const open = phase === 'SERVICE';
+
+    if (isFront) {
+      // Wood panel door with brass handle — ajar during service hours
+      const panelW = 22 * z;
+      const panelH = 46 * z;
+      const swing = open ? -10 * z : 0;
+      ctx.save();
+      ctx.translate(p.x + swing, p.y - panelH);
+      // Frame / jamb
+      ctx.fillStyle = '#6b4423';
+      ctx.fillRect(-panelW / 2 - 3 * z, -2 * z, panelW + 6 * z, panelH + 4 * z);
+      // Door panel
+      ctx.fillStyle = '#a47145';
+      ctx.fillRect(-panelW / 2, 0, panelW, panelH);
+      ctx.strokeStyle = '#704527';
+      ctx.lineWidth = 1.5 * z;
+      ctx.strokeRect(-panelW / 2, 0, panelW, panelH);
+      // Recessed panels
+      ctx.strokeStyle = 'rgba(112,69,39,.55)';
+      ctx.lineWidth = 1 * z;
+      ctx.strokeRect(-panelW / 2 + 3 * z, 6 * z, panelW - 6 * z, panelH * 0.38);
+      ctx.strokeRect(-panelW / 2 + 3 * z, panelH * 0.52, panelW - 6 * z, panelH * 0.38);
+      // Brass handle
+      ctx.fillStyle = '#e5b85b';
+      ctx.beginPath();
+      ctx.arc(panelW / 2 - 5 * z, panelH * 0.52, 2.5 * z, 0, Math.PI * 2);
+      ctx.fill();
+      // Glass window inset
+      ctx.fillStyle = 'rgba(207,238,244,.65)';
+      ctx.fillRect(-panelW / 2 + 5 * z, 8 * z, panelW - 10 * z, 10 * z);
+      ctx.restore();
+      if (open) {
+        ctx.fillStyle = 'rgba(95,211,154,.25)';
+        ctx.beginPath();
+        ctx.moveTo(p.x - 8 * z, p.y);
+        ctx.lineTo(p.x + 14 * z, p.y - panelH * 0.3);
+        ctx.lineTo(p.x + 14 * z, p.y);
+        ctx.closePath();
+        ctx.fill();
+      }
+      return;
+    }
+
+    const bw = tall ? 14 * z : 28 * z;
+    const bh = tall ? 32 * z : 14 * z;
+    ctx.fillStyle = '#8a5b3c';
     ctx.fillRect(p.x - bw / 2, p.y - bh, bw, bh);
+    ctx.strokeStyle = '#5c3018';
+    ctx.lineWidth = 1.5 * z;
+    ctx.strokeRect(p.x - bw / 2, p.y - bh, bw, bh);
     ctx.fillStyle = '#e5b85b';
     ctx.beginPath();
-    ctx.arc(p.x + (tall ? 3 : 0), p.y - bh * 0.45, 2, 0, Math.PI * 2);
+    ctx.arc(p.x + (tall ? 3 * z : 0), p.y - bh * 0.45, 2 * z, 0, Math.PI * 2);
     ctx.fill();
   }
 
@@ -335,6 +388,15 @@ export class IsoRenderer {
       ctx.fillRect(p.x - 40, p.y - 22, 80, 18);
       ctx.fillStyle = '#bec3aa';
       ctx.fillRect(p.x - 40, p.y - 6, 80, 6);
+    } else if (item.kind === 'chair') {
+      const z = camera.zoom;
+      ctx.fillStyle = '#c4893a';
+      ctx.fillRect(p.x - 10 * z, p.y - 18 * z, 20 * z, 12 * z);
+      ctx.fillStyle = '#a87850';
+      ctx.fillRect(p.x - 10 * z, p.y - 28 * z, 4 * z, 12 * z);
+      ctx.fillRect(p.x + 6 * z, p.y - 28 * z, 4 * z, 12 * z);
+      ctx.fillStyle = '#e8c89a';
+      ctx.fillRect(p.x - 9 * z, p.y - 20 * z, 18 * z, 5 * z);
     } else {
       ctx.fillStyle = '#b77c4f';
       ctx.fillRect(p.x - 6, p.y - 12, 12, 12);
@@ -345,8 +407,8 @@ export class IsoRenderer {
     }
   }
 
-  drawIngredientLabels(ctx, camera, inventory, highlightId, hoverId) {
-    for (const fixture of PATISSERIE.fixtures) {
+  drawIngredientLabels(ctx, camera, inventory, highlightId, hoverId, fixtures = PATISSERIE.fixtures) {
+    for (const fixture of fixtures) {
       if (fixture.kind !== 'ingredientBowl') continue;
       const p = this.feetPoint(fixture.x, fixture.y, fixture.w, fixture.h, camera);
       const z = camera.zoom;
@@ -365,8 +427,10 @@ export class IsoRenderer {
 
   drawFixture(ctx, fixture, camera, inventory, cooking, economy, pastryStock = null, opts = {}) {
     const p = this.feetPoint(fixture.x, fixture.y, fixture.w, fixture.h, camera);
-    const kind = fixture.id === 'openSign' ? 'open_sign' : fixture.kind;
-    const drewSprite = kind !== 'serve' && this.drawFurnitureSprite(ctx, kind, p, fixture, camera);
+    const isOpenSign = fixture.id === 'openSign' || fixture.kind === 'openSign';
+    const kind = isOpenSign ? 'open_sign' : fixture.kind;
+    const drewSprite = kind !== 'serve' && !isOpenSign && fixture.kind !== 'conveyor'
+      && this.drawFurnitureSprite(ctx, kind, p, fixture, camera);
     const z = camera.zoom;
     const spriteH = Math.max(28, (fixture.h || 40) * 1.2) * z;
     const showTip =
@@ -526,37 +590,49 @@ export class IsoRenderer {
         break;
       case 'toilet':
         if (!drewSprite) {
-          // Stall partition (left wall + door gap)
-          ctx.fillStyle = 'rgba(180, 200, 210, 0.55)';
-          ctx.fillRect(p.x - 22, p.y - 52, 6, 44);
+          // Stall partition (left wall + back hint)
+          ctx.fillStyle = 'rgba(180, 200, 210, 0.6)';
+          ctx.fillRect(p.x - 28, p.y - 58, 8, 52);
           ctx.fillStyle = 'rgba(160, 185, 195, 0.35)';
-          ctx.fillRect(p.x - 16, p.y - 52, 34, 44);
-          // Tank — compact, mounted high on back wall
-          ctx.fillStyle = '#f4f8fa';
+          ctx.fillRect(p.x - 20, p.y - 58, 40, 52);
+          ctx.fillStyle = 'rgba(197, 224, 232, 0.45)';
+          ctx.fillRect(p.x - 18, p.y - 58, 36, 8);
+          // Tank
+          ctx.fillStyle = '#f8fbfc';
           ctx.strokeStyle = '#7a9fad';
           ctx.lineWidth = 1.5;
-          ctx.fillRect(p.x - 12, p.y - 50, 24, 16);
-          ctx.strokeRect(p.x - 12, p.y - 50, 24, 16);
+          ctx.fillRect(p.x - 14, p.y - 54, 28, 20);
+          ctx.strokeRect(p.x - 14, p.y - 54, 28, 20);
           ctx.fillStyle = '#c5dce6';
-          ctx.fillRect(p.x - 8, p.y - 46, 16, 4);
-          // Bowl — wider seat ring, narrower base
+          ctx.fillRect(p.x - 10, p.y - 48, 20, 5);
+          ctx.fillStyle = '#a0c0d0';
+          ctx.beginPath();
+          ctx.arc(p.x + 8, p.y - 46, 2.5, 0, Math.PI * 2);
+          ctx.fill();
+          // Bowl — seat ring + inner bowl
           ctx.fillStyle = '#f8fbfc';
           ctx.beginPath();
-          ctx.ellipse(p.x, p.y - 22, 16, 9, 0, 0, Math.PI * 2);
+          ctx.ellipse(p.x, p.y - 26, 18, 10, 0, 0, Math.PI * 2);
           ctx.fill();
           ctx.stroke();
           ctx.fillStyle = '#eef6f9';
           ctx.beginPath();
-          ctx.ellipse(p.x, p.y - 23, 10, 5.5, 0, 0, Math.PI * 2);
+          ctx.ellipse(p.x, p.y - 27, 12, 6, 0, 0, Math.PI * 2);
           ctx.fill();
           ctx.strokeStyle = '#9ec4d0';
           ctx.lineWidth = 1;
           ctx.beginPath();
-          ctx.ellipse(p.x, p.y - 23, 6, 3, 0, 0, Math.PI * 2);
+          ctx.ellipse(p.x, p.y - 27, 7, 3.5, 0, 0, Math.PI * 2);
           ctx.stroke();
-          // Base pedestal
+          // Pedestal + base
           ctx.fillStyle = '#e8f0f4';
-          ctx.fillRect(p.x - 8, p.y - 14, 16, 6);
+          ctx.fillRect(p.x - 10, p.y - 16, 20, 8);
+          ctx.fillRect(p.x - 12, p.y - 8, 24, 6);
+          ctx.beginPath();
+          ctx.ellipse(p.x, p.y - 2, 14, 4, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#7a9fad';
+          ctx.stroke();
         }
         if (showTip) drawTooltip(ctx, p.x, p.y - spriteH - 10, '🧽 CLEAN', z);
         break;
@@ -593,6 +669,74 @@ export class IsoRenderer {
         ctx.textAlign = 'center';
         ctx.fillText('SERVE', p.x, p.y - 12);
         break;
+      case 'conveyor': {
+        const beltW = (fixture.w || 160) * z;
+        const beltH = 14 * z;
+        const beltX = p.x - beltW / 2;
+        const beltY = p.y - beltH - 2 * z;
+        // Side rails
+        ctx.fillStyle = COLORS.conveyor;
+        ctx.fillRect(beltX - 3 * z, beltY - 3 * z, beltW + 6 * z, beltH + 6 * z);
+        // Belt surface with moving stripe hint
+        ctx.fillStyle = COLORS.conveyorBelt;
+        ctx.fillRect(beltX, beltY, beltW, beltH);
+        const stripeOffset = (this.time * 40) % (16 * z);
+        ctx.strokeStyle = 'rgba(255,255,255,.18)';
+        ctx.lineWidth = 2 * z;
+        for (let sx = beltX - stripeOffset; sx < beltX + beltW; sx += 16 * z) {
+          ctx.beginPath();
+          ctx.moveTo(sx, beltY + 2 * z);
+          ctx.lineTo(sx + 8 * z, beltY + beltH - 2 * z);
+          ctx.stroke();
+        }
+        // Rollers at each end
+        ctx.fillStyle = '#4a5a6a';
+        for (const rx of [beltX + 6 * z, beltX + beltW - 6 * z]) {
+          ctx.beginPath();
+          ctx.arc(rx, beltY + beltH / 2, 5 * z, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#3a4a5a';
+          ctx.lineWidth = 1.5 * z;
+          ctx.stroke();
+        }
+        if (showTip) drawTooltip(ctx, p.x, p.y - spriteH - 10, 'Conveyor belt', z);
+        break;
+      }
+      case 'openSign': {
+        const open = opts.phase === 'SERVICE';
+        const signH = Math.min(spriteH, 44 * z);
+        const signW = signH * 0.72;
+        const signY = p.y - signH - 6 * z;
+        const img = this.assets?.get('open_sign') || this.assets?.get('furniture_open_sign');
+        if (img) {
+          ctx.save();
+          if (!open) {
+            ctx.translate(p.x, signY + signH / 2);
+            ctx.scale(-1, 1);
+            ctx.drawImage(/** @type {CanvasImageSource} */ (img), -signW / 2, -signH / 2, signW, signH);
+          } else {
+            ctx.drawImage(/** @type {CanvasImageSource} */ (img), p.x - signW / 2, signY, signW, signH);
+          }
+          ctx.restore();
+        } else {
+          ctx.fillStyle = open ? '#5fd39a' : COLORS.berry;
+          ctx.fillRect(p.x - signW / 2, signY, signW, signH);
+        }
+        const badgeW = 38 * z;
+        const badgeH = 16 * z;
+        const badgeY = p.y - 4 * z;
+        ctx.fillStyle = open ? 'rgba(95,211,154,.92)' : 'rgba(232,93,117,.92)';
+        roundRectPath(ctx, p.x - badgeW / 2, badgeY - badgeH, badgeW, badgeH, 5 * z);
+        ctx.fill();
+        ctx.fillStyle = open ? '#1a4d38' : '#fff6e0';
+        ctx.font = `bold ${9 * z}px Fredoka, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.fillText(open ? 'OPEN' : 'CLOSED', p.x, badgeY - 4 * z);
+        if (showTip) {
+          drawTooltip(ctx, p.x, p.y - spriteH - 10, open ? 'Tap to close' : 'Tap to open', z);
+        }
+        break;
+      }
       case 'safe':
         if (!drewSprite) {
           ctx.fillStyle = '#59616a';

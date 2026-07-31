@@ -11,7 +11,7 @@ import { Character, moveWithCollision } from './Character.js';
 import { facingFromMove } from './Facing.js';
 import { PATISSERIE } from '../world/RestaurantLayout.js';
 
-/** @typedef {'enter'|'queue'|'greeting'|'waitingForSeat'|'walkingToTable'|'waiting'|'eating'|'restroomWalking'|'restroomUsing'|'washingHands'|'leaving'|'done'} CustomerState */
+/** @typedef {'enter'|'queue'|'greeting'|'waitingForSeat'|'walkingToTable'|'waiting'|'walkingToPickup'|'eating'|'restroomWalking'|'restroomUsing'|'washingHands'|'leaving'|'done'} CustomerState */
 
 /**
  * Roll a liked recipe. Early days stick to favorites (easy baking).
@@ -96,7 +96,13 @@ export class Customer extends Character {
 
     if (this.state === 'waiting') {
       this.waitTimer += dt;
-      const patienceLimit = CONFIG.CUSTOMER_PATIENCE * this.species.patience;
+      const mess = hooks?.dirtyPlateCount?.() || 0;
+      const messFactor = mess >= 4 ? 0.55 : mess >= 2 ? 0.75 : 1;
+      const patienceLimit = CONFIG.CUSTOMER_PATIENCE * this.species.patience * messFactor;
+      if (mess >= 4 && this.waitTimer > 6 && !this._messToast) {
+        this._messToast = true;
+        hooks?.onMessAnnoyed?.(this);
+      }
       if (this.waitTimer > patienceLimit && !this.served) {
         this.happiness = 0.4;
         this.emote = 'sad';
@@ -169,6 +175,10 @@ export class Customer extends Character {
       this.facingDir = 'front';
       this.facing = 1;
       this.bubbleTimer = 5;
+    } else if (this.state === 'walkingToPickup') {
+      this.target = null;
+      this.bob = 0;
+      hooks?.onReachedPickup?.(this);
     } else if (this.state === 'eating') {
       this.target = null;
       this.waitTimer = 0;
@@ -244,6 +254,13 @@ export class Customer extends Character {
     this.seat = seat;
     this.state = 'walkingToTable';
     this.target = { x: seat.x, y: seat.y };
+  }
+
+  /** Walk from the table to the conveyor pickup window to collect food. */
+  walkToPickup(point) {
+    this.state = 'walkingToPickup';
+    this.target = { x: point.x, y: point.y };
+    this.bob = 1;
   }
 
   /**
