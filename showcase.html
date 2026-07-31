@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Bear Bakery — Creative Preview Gallery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="showcase.css" />
+</head>
+<body>
+  <header>
+    <a href="index.html">Play the game</a>
+    <div>
+      <h1>The Bear Bakery — Creative Preview Gallery</h1>
+      <p>Live preview of current sprites, recipes, systems, and audio from the MVP build.</p>
+    </div>
+  </header>
+  <main>
+    <section class="notice">
+      <strong>PNG-first Modern Patisserie.</strong>
+      Launch characters use real sprites with front / side / back / left facing.
+      Furniture props live in <code>assets/furniture/</code>. Code-drawn animals are only a fallback if a PNG fails to load.
+    </section>
+
+    <nav>
+      <a href="#howto">How to play</a>
+      <a href="#animals">Animals</a>
+      <a href="#directions">Directions</a>
+      <a href="#furniture">Furniture</a>
+      <a href="#cosmetics">Bear looks</a>
+      <a href="#recipes">Recipes</a>
+      <a href="#ingredients">Ingredients</a>
+      <a href="#upgrades">Upgrades</a>
+      <a href="#dialogue">Dialogue</a>
+      <a href="#script">Full script</a>
+      <a href="#voices">Character voices</a>
+      <a href="#music">Music</a>
+      <a href="#sfx">SFX</a>
+      <a href="#files">Where to edit</a>
+    </nav>
+
+    <section id="howto">
+      <h2>MVP Gameplay Loop</h2>
+      <p class="source">Wired in <code>src/engine/Game.js</code>, <code>CookingSystem</code>, <code>ServeFlow</code>, and the pastry case UI.</p>
+      <div id="howto-grid" class="howto-grid"></div>
+    </section>
+
+    <section id="animals">
+      <h2>Full Cast (animated)</h2>
+      <p class="source">PNG sprites from <code>assets/characters/current/</code> via <code>CharacterArt.js</code> + <code>species.js</code>.</p>
+      <div id="animal-grid" class="animal-grid"></div>
+    </section>
+
+    <section id="directions">
+      <h2>4-Direction Facing</h2>
+      <p class="source">Launch assets in <code>assets/characters/directions/</code>. The inconsistent legacy sit set is intentionally disabled. Pick a friend to preview.</p>
+      <div class="direction-controls">
+        <label for="direction-species">Character</label>
+        <select id="direction-species"></select>
+      </div>
+      <div id="direction-grid" class="direction-grid"></div>
+    </section>
+
+    <section id="furniture">
+      <h2>Bakery Furniture Props</h2>
+      <p class="source">Drawn in-game by <code>IsoRenderer</code> from <code>assets/furniture/</code>.</p>
+      <div id="furniture-grid" class="furniture-grid"></div>
+    </section>
+
+    <section id="cosmetics">
+      <h2>Baker Bear Cosmetics</h2>
+      <p class="source">Unlocked in the Back Office shop · keys <code>bear</code>, <code>bear_hat</code>, <code>bear_glasses</code>, <code>bear_hat_glasses</code>.</p>
+      <div id="cosmetics-grid" class="furniture-grid"></div>
+    </section>
+
+    <section id="recipes">
+      <h2>Recipes</h2>
+      <p class="source">Exact-match auto-dough in one of three mixing bowls · then oven → carry to case.</p>
+      <div id="recipe-grid" class="recipe-grid"></div>
+    </section>
+
+    <section id="ingredients">
+      <h2>Ingredient Stations</h2>
+      <p class="source">From <code>ingredients.js</code> · scoopable bowls are laid out in <code>RestaurantLayout.js</code>.</p>
+      <div id="ingredient-grid" class="ingredient-grid"></div>
+    </section>
+
+    <section id="upgrades">
+      <h2>Back Office Unlocks</h2>
+      <p class="source">Shop UI + economy effects from <code>upgrades.js</code>. Playtest <code>+$100</code> button is in the live game HUD.</p>
+      <div id="upgrade-grid" class="upgrade-grid"></div>
+    </section>
+
+    <section id="dialogue">
+      <h2>Dialogue, Bios & Friends</h2>
+      <p class="source">Pun-based dialogue written for ages 6+ and still funny at 13 · bios/friends roll from <code>bios.js</code>.</p>
+      <div id="dialogue-grid" class="dialogue-grid"></div>
+    </section>
+
+    <section id="script">
+      <h2>Full Script Review</h2>
+      <p class="source">
+        Every line in the game, grouped by character. Order lines are written per treat,
+        so the joke always matches what they ask for. Use the filter to review one character at a time.
+      </p>
+      <div class="script-controls">
+        <label for="script-filter">Character</label>
+        <select id="script-filter"></select>
+        <input id="script-search" type="search" placeholder="Search all lines…" />
+        <span id="script-count" class="scale"></span>
+      </div>
+      <div id="script-body"></div>
+    </section>
+
+    <section id="voices">
+      <h2>Character Voice Previews</h2>
+      <p class="source">Pre-rendered MP3 dialogue in <code>assets/audio/voices/</code>. Each character has an independent voice and delivery style.</p>
+      <div id="voice-grid" class="voice-grid"></div>
+    </section>
+
+    <section id="music">
+      <h2>Cozy Music Playlist</h2>
+      <p class="source">Real files from <code>assets/audio/music/</code> (also listed in <code>ASSET_MANIFEST</code>).</p>
+      <div id="music-grid" class="music-grid"></div>
+    </section>
+
+    <section id="sfx">
+      <h2>Sound Effects</h2>
+      <p class="source"><code>assets/audio/sfx/</code> · bell, click, confirm, drop, happy, sad.</p>
+      <div id="sfx-grid" class="music-grid"></div>
+    </section>
+
+    <section id="files">
+      <h2>Quick File Map</h2>
+      <div class="file-map">
+        <article><code>assets/characters/current/</code><span>Primary character PNG portraits used in-game.</span></article>
+        <article><code>assets/characters/directions/</code><span>Front, side, back, and left facing frames.</span></article>
+        <article><code>assets/characters/poses/</code><span>Legacy sit concepts — audited and disabled for MVP quality.</span></article>
+        <article><code>assets/furniture/</code><span>Oven, bowls, case, tables, register, pantry, and more.</span></article>
+        <article><code>src/data/species.js</code><span>Cast size, patience, likes, easy-day guest pool.</span></article>
+        <article><code>src/systems/CookingSystem.js</code><span>3 mixing bowls, auto-dough, put-back, oven state.</span></article>
+        <article><code>src/systems/ServeFlow.js</code><span>Case picker + serving counter → conveyor.</span></article>
+        <article><code>src/world/RestaurantLayout.js</code><span>Modern Patisserie rooms, fixtures, tables.</span></article>
+        <article><code>src/world/IsoRenderer.js</code><span>Oblique 2.5D draw of furniture + characters.</span></article>
+        <article><code>src/engine/Display.js</code><span>Hi-DPI / fullscreen canvas scaler.</span></article>
+        <article><code>src/ui/HUD.js</code><span>Big order text, bowls strip, Put Back, +$100 playtest.</span></article>
+        <article><code>src/data/dialogue.js</code><span>Per-species greeting / order / chat lines.</span></article>
+        <article><code>tools/generate_dialogue_tts.py</code><span>Repeatable Google Gemini-TTS / local preview generator.</span></article>
+        <article><code>assets/audio/voices/</code><span>Voice profiles, generated MP3s, and preview manifest.</span></article>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="src/previews/showcase.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+.DS_Store
+node_modules/
+.vscode/
+*.log
+.cursor/
+
+# Local cloud credentials — never commit private keys
+email-thingy-454102-0f263f7c9a49.json
+service-account*.json
+.env
+.env.local

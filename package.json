@@ -1,0 +1,6 @@
+{
+  "name": "bear-bakery",
+  "private": true,
+  "type": "module",
+  "description": "The Bear Bakery — kid-friendly bakery sim"
+}

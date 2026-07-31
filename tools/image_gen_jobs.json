@@ -1,0 +1,205 @@
+[
+  {
+    "filename": "char-red_panda.png",
+    "aspect_ratio": "1:1",
+    "reference_image_paths": [
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/style-sheet.png",
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/current/panda.png",
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/current/squirrel.png"
+    ],
+    "description": "Single full-body game character sprite of a cute realistic red panda standing upright on hind legs, three-quarter front view. Rusty red-orange fur, cream face markings, dark legs, bushy ringed tail, kind friendly eyes. Soft storybook digital painting style matching the reference sheet and panda/squirrel: believable fur texture, warm and cute, not weird, not chibi. Entire body visible including feet. Flat solid bright green chroma key background #00FF00, no text, no props, character centered."
+  },
+  {
+    "filename": "red_panda-turnaround.png",
+    "aspect_ratio": "16:9",
+    "reference_image_paths": [
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/style-sheet.png"
+    ],
+    "description": "Character turnaround sheet of a cute realistic red panda matching Bear Bakery cast style, four full-body views in a horizontal row clearly separated: FRONT view, RIGHT SIDE view, BACK view, LEFT SIDE view. Rusty red-orange fur, cream face, bushy ringed tail. Soft storybook realistic-cute style. Solid bright green chroma background #00FF00. No text, no labels, no props. Even spacing, same scale, feet aligned."
+  },
+  {
+    "filename": "sit-bear.png",
+    "aspect_ratio": "1:1",
+    "reference_image_paths": [
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/current/bear.png"
+    ],
+    "description": "Single full-body game character sprite of the SAME bear as the reference image, now SITTING in a seated pose as if on a caf\u00e9 chair (no chair drawn \u2014 character only), three-quarter front-ish view, knees bent, hips down, upright torso, relaxed friendly expression. Match exact species markings, fur/skin, and soft storybook realistic-cute style of the reference. Keep any apron/hat/glasses accessories if present on the reference. Entire body visible. Flat solid bright green chroma key background #00FF00, no chair, no props, no text, character centered."
+  },
+  {
+    "filename": "sit-bunny.png",
+    "aspect_ratio": "1:1",
+    "reference_image_paths": [
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/current/bunny.png"
+    ],
+    "description": "Single full-body game character sprite of the SAME bunny as the reference image, now SITTING in a seated pose as if on a caf\u00e9 chair (no chair drawn \u2014 character only), three-quarter front-ish view, knees bent, hips down, upright torso, relaxed friendly expression. Match exact species markings, fur/skin, and soft storybook realistic-cute style of the reference. Keep any apron/hat/glasses accessories if present on the reference. Entire body visible. Flat solid bright green chroma key background #00FF00, no chair, no props, no text, character centered."
+  },
+  {
+    "filename": "sit-dog.png",
+    "aspect_ratio": "1:1",
+    "reference_image_paths": [
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/current/dog.png"
+    ],
+    "description": "Single full-body game character sprite of the SAME dog as the reference image, now SITTING in a seated pose as if on a caf\u00e9 chair (no chair drawn \u2014 character only), three-quarter front-ish view, knees bent, hips down, upright torso, relaxed friendly expression. Match exact species markings, fur/skin, and soft storybook realistic-cute style of the reference. Keep any apron/hat/glasses accessories if present on the reference. Entire body visible. Flat solid bright green chroma key background #00FF00, no chair, no props, no text, character centered."
+  },
+  {
+    "filename": "sit-frog.png",
+    "aspect_ratio": "1:1",
+    "reference_image_paths": [
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/current/frog.png"
+    ],
+    "description": "Single full-body game character sprite of the SAME frog as the reference image, now SITTING in a seated pose as if on a caf\u00e9 chair (no chair drawn \u2014 character only), three-quarter front-ish view, knees bent, hips down, upright torso, relaxed friendly expression. Match exact species markings, fur/skin, and soft storybook realistic-cute style of the reference. Keep any apron/hat/glasses accessories if present on the reference. Entire body visible. Flat solid bright green chroma key background #00FF00, no chair, no props, no text, character centered."
+  },
+  {
+    "filename": "sit-moose.png",
+    "aspect_ratio": "1:1",
+    "reference_image_paths": [
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/current/moose.png"
+    ],
+    "description": "Single full-body game character sprite of the SAME moose as the reference image, now SITTING in a seated pose as if on a caf\u00e9 chair (no chair drawn \u2014 character only), three-quarter front-ish view, knees bent, hips down, upright torso, relaxed friendly expression. Match exact species markings, fur/skin, and soft storybook realistic-cute style of the reference. Keep any apron/hat/glasses accessories if present on the reference. Entire body visible. Flat solid bright green chroma key background #00FF00, no chair, no props, no text, character centered."
+  },
+  {
+    "filename": "sit-squirrel.png",
+    "aspect_ratio": "1:1",
+    "reference_image_paths": [
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/current/squirrel.png"
+    ],
+    "description": "Single full-body game character sprite of the SAME squirrel as the reference image, now SITTING in a seated pose as if on a caf\u00e9 chair (no chair drawn \u2014 character only), three-quarter front-ish view, knees bent, hips down, upright torso, relaxed friendly expression. Match exact species markings, fur/skin, and soft storybook realistic-cute style of the reference. Keep any apron/hat/glasses accessories if present on the reference. Entire body visible. Flat solid bright green chroma key background #00FF00, no chair, no props, no text, character centered."
+  },
+  {
+    "filename": "sit-crocodile.png",
+    "aspect_ratio": "1:1",
+    "reference_image_paths": [
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/current/crocodile.png"
+    ],
+    "description": "Single full-body game character sprite of the SAME crocodile as the reference image, now SITTING in a seated pose as if on a caf\u00e9 chair (no chair drawn \u2014 character only), three-quarter front-ish view, knees bent, hips down, upright torso, relaxed friendly expression. Match exact species markings, fur/skin, and soft storybook realistic-cute style of the reference. Keep any apron/hat/glasses accessories if present on the reference. Entire body visible. Flat solid bright green chroma key background #00FF00, no chair, no props, no text, character centered."
+  },
+  {
+    "filename": "sit-panda.png",
+    "aspect_ratio": "1:1",
+    "reference_image_paths": [
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/current/panda.png"
+    ],
+    "description": "Single full-body game character sprite of the SAME panda as the reference image, now SITTING in a seated pose as if on a caf\u00e9 chair (no chair drawn \u2014 character only), three-quarter front-ish view, knees bent, hips down, upright torso, relaxed friendly expression. Match exact species markings, fur/skin, and soft storybook realistic-cute style of the reference. Keep any apron/hat/glasses accessories if present on the reference. Entire body visible. Flat solid bright green chroma key background #00FF00, no chair, no props, no text, character centered."
+  },
+  {
+    "filename": "sit-red_panda.png",
+    "aspect_ratio": "1:1",
+    "reference_image_paths": [
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/style-sheet.png",
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/current/panda.png"
+    ],
+    "description": "Single full-body game character sprite of the SAME red panda as the reference image, now SITTING in a seated pose as if on a caf\u00e9 chair (no chair drawn \u2014 character only), three-quarter front-ish view, knees bent, hips down, upright torso, relaxed friendly expression. Match exact species markings, fur/skin, and soft storybook realistic-cute style of the reference. Keep any apron/hat/glasses accessories if present on the reference. Entire body visible. Flat solid bright green chroma key background #00FF00, no chair, no props, no text, character centered."
+  },
+  {
+    "filename": "sit-elephant.png",
+    "aspect_ratio": "1:1",
+    "reference_image_paths": [
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/current/elephant.png"
+    ],
+    "description": "Single full-body game character sprite of the SAME elephant as the reference image, now SITTING in a seated pose as if on a caf\u00e9 chair (no chair drawn \u2014 character only), three-quarter front-ish view, knees bent, hips down, upright torso, relaxed friendly expression. Match exact species markings, fur/skin, and soft storybook realistic-cute style of the reference. Keep any apron/hat/glasses accessories if present on the reference. Entire body visible. Flat solid bright green chroma key background #00FF00, no chair, no props, no text, character centered."
+  },
+  {
+    "filename": "sit-giraffe.png",
+    "aspect_ratio": "1:1",
+    "reference_image_paths": [
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/current/giraffe.png"
+    ],
+    "description": "Single full-body game character sprite of the SAME giraffe as the reference image, now SITTING in a seated pose as if on a caf\u00e9 chair (no chair drawn \u2014 character only), three-quarter front-ish view, knees bent, hips down, upright torso, relaxed friendly expression. Match exact species markings, fur/skin, and soft storybook realistic-cute style of the reference. Keep any apron/hat/glasses accessories if present on the reference. Entire body visible. Flat solid bright green chroma key background #00FF00, no chair, no props, no text, character centered."
+  },
+  {
+    "filename": "sit-hedgehog.png",
+    "aspect_ratio": "1:1",
+    "reference_image_paths": [
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/current/hedgehog.png"
+    ],
+    "description": "Single full-body game character sprite of the SAME hedgehog as the reference image, now SITTING in a seated pose as if on a caf\u00e9 chair (no chair drawn \u2014 character only), three-quarter front-ish view, knees bent, hips down, upright torso, relaxed friendly expression. Match exact species markings, fur/skin, and soft storybook realistic-cute style of the reference. Keep any apron/hat/glasses accessories if present on the reference. Entire body visible. Flat solid bright green chroma key background #00FF00, no chair, no props, no text, character centered."
+  },
+  {
+    "filename": "sit-capybara.png",
+    "aspect_ratio": "1:1",
+    "reference_image_paths": [
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/current/capybara.png"
+    ],
+    "description": "Single full-body game character sprite of the SAME capybara as the reference image, now SITTING in a seated pose as if on a caf\u00e9 chair (no chair drawn \u2014 character only), three-quarter front-ish view, knees bent, hips down, upright torso, relaxed friendly expression. Match exact species markings, fur/skin, and soft storybook realistic-cute style of the reference. Keep any apron/hat/glasses accessories if present on the reference. Entire body visible. Flat solid bright green chroma key background #00FF00, no chair, no props, no text, character centered."
+  },
+  {
+    "filename": "sit-lion.png",
+    "aspect_ratio": "1:1",
+    "reference_image_paths": [
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/current/lion.png"
+    ],
+    "description": "Single full-body game character sprite of the SAME lion as the reference image, now SITTING in a seated pose as if on a caf\u00e9 chair (no chair drawn \u2014 character only), three-quarter front-ish view, knees bent, hips down, upright torso, relaxed friendly expression. Match exact species markings, fur/skin, and soft storybook realistic-cute style of the reference. Keep any apron/hat/glasses accessories if present on the reference. Entire body visible. Flat solid bright green chroma key background #00FF00, no chair, no props, no text, character centered."
+  },
+  {
+    "filename": "sit-leopard.png",
+    "aspect_ratio": "1:1",
+    "reference_image_paths": [
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/current/leopard.png"
+    ],
+    "description": "Single full-body game character sprite of the SAME leopard as the reference image, now SITTING in a seated pose as if on a caf\u00e9 chair (no chair drawn \u2014 character only), three-quarter front-ish view, knees bent, hips down, upright torso, relaxed friendly expression. Match exact species markings, fur/skin, and soft storybook realistic-cute style of the reference. Keep any apron/hat/glasses accessories if present on the reference. Entire body visible. Flat solid bright green chroma key background #00FF00, no chair, no props, no text, character centered."
+  },
+  {
+    "filename": "sit-tiger.png",
+    "aspect_ratio": "1:1",
+    "reference_image_paths": [
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/current/tiger.png"
+    ],
+    "description": "Single full-body game character sprite of the SAME tiger as the reference image, now SITTING in a seated pose as if on a caf\u00e9 chair (no chair drawn \u2014 character only), three-quarter front-ish view, knees bent, hips down, upright torso, relaxed friendly expression. Match exact species markings, fur/skin, and soft storybook realistic-cute style of the reference. Keep any apron/hat/glasses accessories if present on the reference. Entire body visible. Flat solid bright green chroma key background #00FF00, no chair, no props, no text, character centered."
+  },
+  {
+    "filename": "sit-deer.png",
+    "aspect_ratio": "1:1",
+    "reference_image_paths": [
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/current/deer.png"
+    ],
+    "description": "Single full-body game character sprite of the SAME deer as the reference image, now SITTING in a seated pose as if on a caf\u00e9 chair (no chair drawn \u2014 character only), three-quarter front-ish view, knees bent, hips down, upright torso, relaxed friendly expression. Match exact species markings, fur/skin, and soft storybook realistic-cute style of the reference. Keep any apron/hat/glasses accessories if present on the reference. Entire body visible. Flat solid bright green chroma key background #00FF00, no chair, no props, no text, character centered."
+  },
+  {
+    "filename": "sit-owl.png",
+    "aspect_ratio": "1:1",
+    "reference_image_paths": [
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/current/owl.png"
+    ],
+    "description": "Single full-body game character sprite of the SAME owl as the reference image, now SITTING in a seated pose as if on a caf\u00e9 chair (no chair drawn \u2014 character only), three-quarter front-ish view, knees bent, hips down, upright torso, relaxed friendly expression. Match exact species markings, fur/skin, and soft storybook realistic-cute style of the reference. Keep any apron/hat/glasses accessories if present on the reference. Entire body visible. Flat solid bright green chroma key background #00FF00, no chair, no props, no text, character centered."
+  },
+  {
+    "filename": "sit-pig.png",
+    "aspect_ratio": "1:1",
+    "reference_image_paths": [
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/current/pig.png"
+    ],
+    "description": "Single full-body game character sprite of the SAME pig as the reference image, now SITTING in a seated pose as if on a caf\u00e9 chair (no chair drawn \u2014 character only), three-quarter front-ish view, knees bent, hips down, upright torso, relaxed friendly expression. Match exact species markings, fur/skin, and soft storybook realistic-cute style of the reference. Keep any apron/hat/glasses accessories if present on the reference. Entire body visible. Flat solid bright green chroma key background #00FF00, no chair, no props, no text, character centered."
+  },
+  {
+    "filename": "sit-penguin.png",
+    "aspect_ratio": "1:1",
+    "reference_image_paths": [
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/current/penguin.png"
+    ],
+    "description": "Single full-body game character sprite of the SAME penguin as the reference image, now SITTING in a seated pose as if on a caf\u00e9 chair (no chair drawn \u2014 character only), three-quarter front-ish view, knees bent, hips down, upright torso, relaxed friendly expression. Match exact species markings, fur/skin, and soft storybook realistic-cute style of the reference. Keep any apron/hat/glasses accessories if present on the reference. Entire body visible. Flat solid bright green chroma key background #00FF00, no chair, no props, no text, character centered."
+  },
+  {
+    "filename": "sit-bear_hat.png",
+    "aspect_ratio": "1:1",
+    "reference_image_paths": [
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/current/bear_hat.png"
+    ],
+    "description": "Single full-body game character sprite of the SAME bear hat as the reference image, now SITTING in a seated pose as if on a caf\u00e9 chair (no chair drawn \u2014 character only), three-quarter front-ish view, knees bent, hips down, upright torso, relaxed friendly expression. Match exact species markings, fur/skin, and soft storybook realistic-cute style of the reference. Keep any apron/hat/glasses accessories if present on the reference. Entire body visible. Flat solid bright green chroma key background #00FF00, no chair, no props, no text, character centered."
+  },
+  {
+    "filename": "sit-bear_glasses.png",
+    "aspect_ratio": "1:1",
+    "reference_image_paths": [
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/current/bear_glasses.png"
+    ],
+    "description": "Single full-body game character sprite of the SAME bear glasses as the reference image, now SITTING in a seated pose as if on a caf\u00e9 chair (no chair drawn \u2014 character only), three-quarter front-ish view, knees bent, hips down, upright torso, relaxed friendly expression. Match exact species markings, fur/skin, and soft storybook realistic-cute style of the reference. Keep any apron/hat/glasses accessories if present on the reference. Entire body visible. Flat solid bright green chroma key background #00FF00, no chair, no props, no text, character centered."
+  },
+  {
+    "filename": "sit-bear_hat_glasses.png",
+    "aspect_ratio": "1:1",
+    "reference_image_paths": [
+      "/Users/aarondoucett/Documents/Games/BearBakery/assets/characters/current/bear_hat_glasses.png"
+    ],
+    "description": "Single full-body game character sprite of the SAME bear hat glasses as the reference image, now SITTING in a seated pose as if on a caf\u00e9 chair (no chair drawn \u2014 character only), three-quarter front-ish view, knees bent, hips down, upright torso, relaxed friendly expression. Match exact species markings, fur/skin, and soft storybook realistic-cute style of the reference. Keep any apron/hat/glasses accessories if present on the reference. Entire body visible. Flat solid bright green chroma key background #00FF00, no chair, no props, no text, character centered."
+  }
+]
